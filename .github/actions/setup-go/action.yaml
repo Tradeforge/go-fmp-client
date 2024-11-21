@@ -1,0 +1,19 @@
+name: Setup Go
+description: |
+  Setup Go
+
+inputs:
+  cache:
+    description: Cache
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - id: go-setup
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: go.mod
+        check-latest: true
+        cache: ${{ inputs.cache }}

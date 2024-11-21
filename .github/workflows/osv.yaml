@@ -1,0 +1,46 @@
+name: OSV Scan
+
+on:
+  schedule:
+    - cron: "0 4 * * 1" # Run scan on Monday 04:00 UTC
+  workflow_dispatch:
+
+jobs:
+  osv-scan:
+    name: OSV scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Go
+        uses: ./.github/actions/setup-go
+      - name: Go generate
+        run: |
+          make generate
+      - name: Install OSV Scanner
+        run: |
+          go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+      - name: Run OSV Scanner
+        # There needs to be "bash {0}" command to ensure that Github will not add "-e" option to it.
+        shell: bash {0}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          osv-scanner -r .
+          if [ $? -eq 1 ]
+          then
+            SCANNER_OUT=$(osv-scanner --format json -r .)
+            issues=$(gh issue list -S OSV -L 100)
+            echo "$SCANNER_OUT" | jq  -c '.results[].packages[]' | while read -r i; do
+              packageName=$(echo "$i" | jq --raw-output '.package.name')
+              echo "$i" | jq --raw-output '.vulnerabilities[] | .id' | while read -r issueID; do
+                if [ "$(echo "$issues" | grep "$packageName:$issueID" > /dev/null; echo $?)" -eq 1 ]
+                then
+                  gh issue create --title "OSV Scanner: $packageName:$issueID" --body "Description of the issue: https://osv.dev/$issueID"
+                fi
+              done
+            done
+          fi

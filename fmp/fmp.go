@@ -7,8 +7,8 @@ import (
 	"go.tradeforge.dev/fmp/client"
 )
 
-// Client defines a client to the Polygon REST API.
-type Client struct {
+// HTTPClient defines a client to the Polygon REST API.
+type HTTPClient struct {
 	QuoteClient
 	TickerClient
 	EventClient
@@ -19,14 +19,14 @@ func NewHTTPClient(
 	apiURL string,
 	apiKey string,
 	logger *slog.Logger,
-) *Client {
+) *HTTPClient {
 	c := client.New(
 		apiURL,
 		apiKey,
 		logger,
 	)
 
-	return &Client{
+	return &HTTPClient{
 		QuoteClient: QuoteClient{
 			Client: c,
 		},
@@ -37,6 +37,11 @@ func NewHTTPClient(
 			Client: c,
 		},
 	}
+}
+
+type WebsocketClientConfig struct {
+	APIKey string `validate:"required"`
+	APIURL string `validate:"required"`
 }
 
 func NewWebsocketClient(
@@ -52,8 +57,4 @@ func NewWebsocketClient(
 type WebsocketClient struct {
 	config WebsocketClientConfig
 	logger *slog.Logger
-}
-
-type WebsocketClientConfig struct {
-	APIKey string `validate:"required"`
 }
