@@ -1,4 +1,4 @@
-package fmp
+package market
 
 import (
 	"bytes"

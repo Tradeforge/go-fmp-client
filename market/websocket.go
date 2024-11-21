@@ -1,4 +1,4 @@
-package fmp
+package market
 
 import (
     "context"
@@ -41,7 +41,7 @@ func (wss *WebsocketClient) SubscribeToPriceFeed(ctx context.Context, symbols []
     wss.logger.Debug("subscribed to price feed")
 
     priceFeed := make(chan model.WebsocketQuote)
-   
+
     mgr := manager.New(ctx)
     mgr.RunWithRetry(func(ctx context.Context) error {
         defer func() {

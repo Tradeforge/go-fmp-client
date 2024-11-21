@@ -1,5 +1,5 @@
-// Package fmp defines a REST client for the FMP API.
-package fmp
+// Package market defines HTTP and a Websocket client for the FMP API.
+package market
 
 import (
 	"log/slog"
