@@ -15,7 +15,7 @@ import (
 )
 
 type HTTPClientConfig struct {
-	ApiKey string `validate:"required" env:"FMP_API_KEY"`
+	APIKey string `validate:"required" env:"FMP_API_KEY"`
 }
 
 // HTTPClient defines a client to the Polygon REST API.
@@ -31,7 +31,7 @@ func NewHTTPClient(
 	logger *slog.Logger,
 ) *HTTPClient {
 	c := rest.New(
-		config.ApiKey,
+		config.APIKey,
 		logger,
 	)
 
@@ -49,7 +49,7 @@ func NewHTTPClient(
 }
 
 type WebsocketClientConfig struct {
-	ApiKey string `validate:"required" env:"FMP_API_KEY"`
+	APIKey string `validate:"required" env:"FMP_API_KEY"`
 }
 
 func NewWebsocketClient(
@@ -82,8 +82,7 @@ type WebsocketClient struct {
 	connectionLock sync.Mutex
 	connection     *websocket.Conn
 
-	subscribedQuotesLock sync.RWMutex
-	subscribedQuotes     map[string]struct{}
+	subscribeQuotesLock sync.RWMutex
 
 	events chan model.WebsocketMesssage
 	quotes chan model.WebsocketQuote

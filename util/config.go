@@ -23,7 +23,7 @@ func LoadConfig[T any](envFilePath string) (*T, error) {
 
 	appPrefix := os.Getenv(appPrefixEnvKey)
 	if appPrefix != "" {
-		appPrefix = appPrefix + "_"
+		appPrefix += "_"
 	}
 	cfg := new(T)
 	if err := env.ParseWithOptions(cfg, env.Options{Prefix: appPrefix}); err != nil {

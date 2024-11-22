@@ -41,6 +41,3 @@ apollo/sandbox/src/config.js
 
 # IDEs
 .idea/
-
-# Playground
-playground/

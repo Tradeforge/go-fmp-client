@@ -20,11 +20,10 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - gocognit
     - goconst
     - gocritic
     - gofmt
-    - gomnd
+    - mnd
     - gosec
     - misspell
     - nilerr
