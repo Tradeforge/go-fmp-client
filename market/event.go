@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"go.tradeforge.dev/fmp/client"
+	"go.tradeforge.dev/fmp/client/rest"
 	"go.tradeforge.dev/fmp/model"
 )
 
@@ -14,7 +14,7 @@ const (
 )
 
 type EventClient struct {
-	*client.Client
+	*rest.Client
 }
 
 func (ec *EventClient) GetEarningsCalendar(ctx context.Context, params *model.GetEarningsCalendarParams, opts ...model.RequestOption) ([]model.GetEarningsCalendarResponse, error) {

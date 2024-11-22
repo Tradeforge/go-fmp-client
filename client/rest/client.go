@@ -1,4 +1,4 @@
-package client
+package rest
 
 import (
 	"context"
@@ -15,16 +15,14 @@ import (
 )
 
 const (
+	apiURL        = "https://financialmodelingprep.com"
 	clientVersion = "v0.0.0"
-)
 
-const (
 	DefaultRetryCount    = 3
 	DefaultClientTimeout = 10 * time.Second
 )
 
 func New(
-	apiURL string,
 	apiKey string,
 	logger *slog.Logger,
 ) *Client {

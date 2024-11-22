@@ -2,124 +2,179 @@ package market
 
 import (
     "context"
+    "encoding/json"
     "fmt"
-    "time"
+    "log/slog"
+    "sync"
 
-    "github.com/eapache/go-resiliency/retrier"
     "github.com/gorilla/websocket"
-    "go.tradeforge.dev/background/manager"
 
     "go.tradeforge.dev/fmp/model"
 )
 
 const (
-    defaultConstantBackoffRetries = 5
+    QuoteEndpoint = "wss://websockets.financialmodelingprep.com"
 )
 
-func (wss *WebsocketClient) SubscribeToPriceFeed(ctx context.Context, symbols []string) (<-chan model.WebsocketQuote, error) {
-    conn, _, err := websocket.DefaultDialer.Dial(wss.config.APIURL, nil)
-    defer func() {
-        if err := conn.Close(); err != nil {
-            wss.logger.Error("closing websocket connection", "error", err)
+func (wss *WebsocketClient) Connect(endpoint string) (err error) {
+    wss.connectOnce.Do(func() {
+        var conn *websocket.Conn
+        conn, _, err = websocket.DefaultDialer.Dial(endpoint, nil)
+        if err != nil {
+            return
         }
-    }()
+        wss.connection = conn
+        wss.manager.Run(wss.maintainConnection)
+
+        msg := model.WebsocketAuthenticationRequest{
+            Event: model.WebsocketEventNameLogin,
+            Data:  model.WebsocketAuthenticationRequestData{APIKey: wss.config.ApiKey},
+        }
+        if connErr := conn.WriteJSON(msg); connErr != nil {
+            err = fmt.Errorf("writing authentication message: %w", connErr)
+            return
+        }
+    L:
+        for {
+            select {
+            case <-wss.ctx.Done():
+                break L
+            case evt := <-wss.events:
+                if evt.Event != model.WebsocketEventNameLogin {
+                    continue
+                }
+                if evt.Status == nil || *evt.Status >= 400 {
+                    errMsg := fmt.Sprintf("unexpected error code: %d", evt.Status)
+                    if evt.Message != nil {
+                        errMsg = *evt.Message
+                    }
+                    err = fmt.Errorf("authentication failed: %s", errMsg)
+                }
+                break L
+            }
+        }
+    })
     if err != nil {
-        return nil, err
+        return fmt.Errorf("dialing websocket connection: %w", err)
     }
-
-    if err := wss.authenticate(conn); err != nil {
-        return nil, fmt.Errorf("authenticating websocket connection: %w", err)
-    }
-    if err := wss.subscribeToCompanyFeed(conn, symbols); err != nil {
-        return nil, fmt.Errorf("subscribing to company feed: %w", err)
-    }
-    defer func() {
-        if err := wss.unsubscribeFromPriceFeed(conn, symbols); err != nil {
-            wss.logger.Error("unsubscribing from price feed", "error", err)
-        }
-    }()
-    wss.logger.Debug("subscribed to price feed")
-
-    priceFeed := make(chan model.WebsocketQuote)
-
-    mgr := manager.New(ctx)
-    mgr.RunWithRetry(func(ctx context.Context) error {
-        defer func() {
-            wss.logger.Debug("closing price feed")
-            close(priceFeed)
-        }()
-        return wss.startReadingPriceFeed(ctx, conn, priceFeed)
-    }, retrier.New(retrier.ConstantBackoff(defaultConstantBackoffRetries, 5*time.Second), nil))
-
-    return priceFeed, nil
+    return nil
 }
 
-func (wss *WebsocketClient) startReadingPriceFeed(ctx context.Context, conn *websocket.Conn, priceFeed chan<- model.WebsocketQuote) error {
+func (wss *WebsocketClient) maintainConnection(ctx context.Context) error {
 L:
     for {
         select {
         case <-ctx.Done():
             return nil
         default:
-            var msg model.WebsocketEvent
-            if err := conn.ReadJSON(&msg); err != nil {
+            var rawMessage json.RawMessage
+            if err := wss.connection.ReadJSON(&rawMessage); err != nil {
                 return fmt.Errorf("reading websocket message: %w", err)
+            }
+            msg := model.WebsocketMesssage{}
+            if err := json.Unmarshal(rawMessage, &msg); err != nil {
+                return fmt.Errorf("unmarshaling websocket message: %w", err)
             }
 
             switch msg.Event {
-            case model.WebsocketEventTypeHeartbeat:
+            case model.WebsocketEventNameHeartbeat:
                 wss.logger.Debug("received heartbeat")
                 continue
-            case model.WebsocketEventTypeLogin:
-                wss.logger.Debug("authenticated to price feed")
+            case model.WebsocketEventNameLogin:
+                wss.events <- msg
+                wss.logger.Debug("authenticated", slog.Any("message", msg))
                 continue
-            case model.WebsocketEventTypeSubscribe:
-                wss.logger.Debug("subscribed to price feed")
+            case model.WebsocketEventNameSubscribe:
+                wss.events <- msg
+                wss.logger.Debug("subscribed", slog.Any("message", msg))
                 continue
-            case model.WebsocketEventTypeUnsubscribe:
-                wss.logger.Debug("unsubscribed from price feed")
+            case model.WebsocketEventNameUnsubscribe:
+                wss.events <- msg
+                wss.logger.Debug("unsubscribed", slog.Any("message", msg))
                 break L
             default:
-                var quote model.WebsocketQuote
-                if err := conn.ReadJSON(&quote); err != nil {
-                    return fmt.Errorf("reading websocket quote: %w", err)
+                wss.logger.Debug("received message", slog.Any("raw", rawMessage))
+                if msg.Type == nil {
+                    return fmt.Errorf("unknown message type: nil")
                 }
-                if quote.LastPrice == 0 {
-                    continue
+                if err := wss.processRawMessage(*msg.Type, rawMessage); err != nil {
+                    return fmt.Errorf("processing message: %w", err)
                 }
-                priceFeed <- quote
             }
         }
     }
+    return nil
+}
+
+func (wss *WebsocketClient) Disconnect() error {
+    if wss.connection == nil {
+        return nil
+    }
+    if err := wss.connection.Close(); err != nil {
+        return fmt.Errorf("closing websocket connection: %w", err)
+    }
+    wss.connection = nil
+    wss.connectOnce = sync.Once{}
 
     return nil
 }
 
-func (wss *WebsocketClient) authenticate(conn *websocket.Conn) error {
-    msg := model.WebsocketAuthenticationRequest{
-        Event: model.WebsocketEventTypeLogin,
-        Data:  model.WebsocketAuthenticationRequestData{APIKey: wss.config.APIKey},
-    }
-    if err := conn.WriteJSON(msg); err != nil {
-        return fmt.Errorf("writing authentication message: %w", err)
-    }
-    return nil
-}
-
-func (wss *WebsocketClient) subscribeToCompanyFeed(conn *websocket.Conn, symbols []string) error {
+func (wss *WebsocketClient) Subscribe(symbols []string) error {
+    wss.subscribedQuotesLock.Lock()
+    defer wss.subscribedQuotesLock.Unlock()
     msg := model.WebsocketSubscriptionRequest{
-        Event: model.WebsocketEventTypeSubscribe,
+        Event: model.WebsocketEventNameSubscribe,
         Data:  model.WebsocketSubscriptionRequestData{Symbols: symbols},
     }
-    if err := conn.WriteJSON(msg); err != nil {
+    if err := wss.connection.WriteJSON(msg); err != nil {
         return fmt.Errorf("writing subscription message: %w", err)
+    }
+L:
+    for {
+        select {
+        case <-wss.ctx.Done():
+            break L
+        case evt := <-wss.events:
+            if evt.Event != model.WebsocketEventNameSubscribe {
+                continue
+            }
+            if evt.Status == nil || *evt.Status >= 400 {
+                errMsg := fmt.Sprintf("unexpected error code: %d", evt.Status)
+                if evt.Message != nil {
+                    errMsg = *evt.Message
+                }
+                return fmt.Errorf("subscription failed: %s", errMsg)
+            }
+            break L
+        }
     }
     return nil
 }
 
-func (wss *WebsocketClient) unsubscribeFromPriceFeed(conn *websocket.Conn, symbols []string) error {
+func (wss *WebsocketClient) processRawMessage(typ model.WebsocketMessageType, msg json.RawMessage) error {
+    switch typ {
+    case model.WebsocketMessageTypeQuote:
+        if err := wss.processQuote(msg); err != nil {
+            return fmt.Errorf("processing quote: %w", err)
+        }
+    default:
+        wss.logger.Debug("received unknown message", slog.Any("message", msg))
+    }
+    return nil
+}
+
+func (wss *WebsocketClient) processQuote(msg json.RawMessage) error {
+    quote := model.WebsocketQuote{}
+    if err := json.Unmarshal(msg, &quote); err != nil {
+        return fmt.Errorf("unmarshaling websocket quote: %w", err)
+    }
+    wss.quotes <- quote
+    return nil
+}
+
+func (wss *WebsocketClient) Unsubscribe(conn *websocket.Conn, symbols []string) error {
     msg := model.WebsocketSubscriptionRequest{
-        Event: model.WebsocketEventTypeUnsubscribe,
+        Event: model.WebsocketEventNameUnsubscribe,
         Data:  model.WebsocketSubscriptionRequestData{Symbols: symbols},
     }
     if err := conn.WriteJSON(msg); err != nil {
@@ -127,3 +182,17 @@ func (wss *WebsocketClient) unsubscribeFromPriceFeed(conn *websocket.Conn, symbo
     }
     return nil
 }
+
+func (wss *WebsocketClient) Quotes() <-chan model.WebsocketQuote {
+    return wss.quotes
+}
+
+//func (wss *WebsocketClient) readQuote(ctx context.Context) error {
+//    var quote model.WebsocketQuote
+//    if err := wss.connection.ReadJSON(&quote); err != nil {
+//        return fmt.Errorf("reading websocket quote: %w", err)
+//    }
+//    if quote.LastPrice == 0 {
+//        return nil
+//    }
+//}

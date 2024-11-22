@@ -1,23 +1,53 @@
 package model
 
-type WebsocketEventType string
-
-const (
-	WebsocketEventTypeHeartbeat   WebsocketEventType = "heartbeat"
-	WebsocketEventTypeLogin       WebsocketEventType = "login"
-	WebsocketEventTypeSubscribe   WebsocketEventType = "subscribe"
-	WebsocketEventTypeUnsubscribe WebsocketEventType = "unsubscribe"
+import (
+	"log/slog"
 )
 
-type WebsocketEvent struct {
-	Event     WebsocketEventType `json:"event"`
-	Message   *string            `json:"message"`
-	Status    *int               `json:"status"`
-	Timestamp *int64             `json:"timestamp"`
+type WebsocketEventName string
+
+const (
+	WebsocketEventNameHeartbeat   WebsocketEventName = "heartbeat"
+	WebsocketEventNameLogin       WebsocketEventName = "login"
+	WebsocketEventNameSubscribe   WebsocketEventName = "subscribe"
+	WebsocketEventNameUnsubscribe WebsocketEventName = "unsubscribe"
+)
+
+type WebsocketMessageType string
+
+const (
+	WebsocketMessageTypeQuote WebsocketMessageType = "Q"
+)
+
+type WebsocketMesssage struct {
+	Event     WebsocketEventName    `json:"event"`
+	Type      *WebsocketMessageType `json:"type"`
+	Message   *string               `json:"message"`
+	Status    *int                  `json:"status"`
+	Timestamp *int64                `json:"timestamp"`
+}
+
+func (m WebsocketMesssage) LogValue() slog.Value {
+	valueMap := map[string]interface{}{
+		"event": m.Event,
+	}
+	if m.Type != nil {
+		valueMap["type"] = m.Type
+	}
+	if m.Message != nil {
+		valueMap["message"] = *m.Message
+	}
+	if m.Status != nil {
+		valueMap["status"] = *m.Status
+	}
+	if m.Timestamp != nil {
+		valueMap["timestamp"] = *m.Timestamp
+	}
+	return slog.AnyValue(valueMap)
 }
 
 type WebsocketAuthenticationRequest struct {
-	Event WebsocketEventType                 `json:"event"`
+	Event WebsocketEventName                 `json:"event"`
 	Data  WebsocketAuthenticationRequestData `json:"data"`
 }
 
@@ -26,7 +56,7 @@ type WebsocketAuthenticationRequestData struct {
 }
 
 type WebsocketSubscriptionRequest struct {
-	Event WebsocketEventType               `json:"event"`
+	Event WebsocketEventName               `json:"event"`
 	Data  WebsocketSubscriptionRequestData `json:"data"`
 }
 

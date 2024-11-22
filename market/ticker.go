@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"go.tradeforge.dev/fmp/client"
+	"go.tradeforge.dev/fmp/client/rest"
 	"go.tradeforge.dev/fmp/model"
 )
 
@@ -25,7 +25,7 @@ const (
 )
 
 type TickerClient struct {
-	*client.Client
+	*rest.Client
 }
 
 func (tc *TickerClient) GetCompanyProfile(ctx context.Context, params *model.GetCompanyProfileParams, opts ...model.RequestOption) (_ *model.GetCompanyProfileResponse, err error) {
