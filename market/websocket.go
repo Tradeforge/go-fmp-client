@@ -183,12 +183,14 @@ func (wss *WebsocketClient) processQuote(msg json.RawMessage) error {
 	return nil
 }
 
-func (wss *WebsocketClient) Unsubscribe(conn *websocket.Conn, symbols []string) error {
+func (wss *WebsocketClient) Unsubscribe(symbols []string) error {
+	wss.subscribeQuotesLock.Lock()
+	defer wss.subscribeQuotesLock.Unlock()
 	msg := model.WebsocketSubscriptionRequest{
 		Event: model.WebsocketEventNameUnsubscribe,
 		Data:  model.WebsocketSubscriptionRequestData{Symbols: symbols},
 	}
-	if err := conn.WriteJSON(msg); err != nil {
+	if err := wss.connection.WriteJSON(msg); err != nil {
 		return fmt.Errorf("writing unsubscription message: %w", err)
 	}
 	return nil
