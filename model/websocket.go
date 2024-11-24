@@ -2,6 +2,8 @@ package model
 
 import (
 	"log/slog"
+
+	"github.com/shopspring/decimal"
 )
 
 type WebsocketEventName string
@@ -65,11 +67,11 @@ type WebsocketSubscriptionRequestData struct {
 }
 
 type WebsocketQuote struct {
-	Symbol      string  `json:"s"`
-	AskPrice    float64 `json:"ap"`
-	AskSize     int64   `json:"as"`
-	BidPrice    float64 `json:"bp"`
-	BidSize     int64   `json:"bs"`
-	LastPrice   float64 `json:"lp"`
-	LastUpdated int64   `json:"t"`
+	Symbol      string          `json:"s"`
+	AskPrice    decimal.Decimal `json:"ap"`
+	AskSize     decimal.Decimal `json:"as"`
+	BidPrice    decimal.Decimal `json:"bp"`
+	BidSize     decimal.Decimal `json:"bs"`
+	LastPrice   decimal.Decimal `json:"lp"`
+	LastUpdated int64           `json:"t"`
 }
