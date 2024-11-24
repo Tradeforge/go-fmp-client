@@ -71,5 +71,5 @@ type WebsocketQuote struct {
 	BidPrice    float64 `json:"bp"`
 	BidSize     int64   `json:"bs"`
 	LastPrice   float64 `json:"lp"`
-	LastUpdated int     `json:"t"`
+	LastUpdated int64   `json:"t"`
 }
