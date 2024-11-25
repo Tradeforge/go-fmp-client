@@ -18,8 +18,8 @@ type TickerQuote struct {
 	Symbol      string          `json:"symbol"`
 	BidPrice    decimal.Decimal `json:"bidPrice"`
 	AskPrice    decimal.Decimal `json:"askPrice"`
-	BidSize     uint64          `json:"bidSize"`
-	AskSize     uint64          `json:"askSize"`
+	BidSize     decimal.Decimal `json:"bidSize"`
+	AskSize     decimal.Decimal `json:"askSize"`
 	Volume      decimal.Decimal `json:"volume"`
 	LastUpdated int64           `json:"lastUpdated"`
 }
