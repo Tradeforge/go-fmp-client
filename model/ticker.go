@@ -134,8 +134,8 @@ func ParseCompanyProfileCSVRecord(header []string, record []string) (*BulkCompan
 type ListHistoricalBarsParams struct {
 	Timeframe Timeframe  `path:"timeframe,required"`
 	Symbol    string     `path:"symbol,required"`
-	Since     types.Date `query:"since"`
-	Until     types.Date `query:"until"`
+	Since     types.Date `query:"from"`
+	Until     types.Date `query:"to"`
 	Extended  bool       `query:"extended"`
 }
 
