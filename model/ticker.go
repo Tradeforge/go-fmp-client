@@ -150,6 +150,26 @@ type Bar struct {
 	DateTime types.DateTime  `json:"date"`
 }
 
+type ListHistoricalEODBarsParams struct {
+	Symbol string     `path:"symbol,required"`
+	Since  types.Date `query:"from"`
+	Until  types.Date `query:"to"`
+}
+
+type ListHistoricalEODBarsResponse = []EODBar
+
+type EODBar struct {
+	Date          types.Date      `json:"date"`
+	Open          decimal.Decimal `json:"open"`
+	High          decimal.Decimal `json:"high"`
+	Low           decimal.Decimal `json:"low"`
+	Close         decimal.Decimal `json:"close"`
+	AdjustedClose decimal.Decimal `json:"adjClose"`
+	Volume        decimal.Decimal `json:"volume"`
+	Change        decimal.Decimal `json:"change"`
+	ChangePercent decimal.Decimal `json:"changePercent"`
+}
+
 type ListStockKeyMetricsParams struct {
 	Symbol string `path:"symbol,required"`
 	Period string `query:"period,omitempty"`
