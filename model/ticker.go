@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/shopspring/decimal"
 
@@ -143,12 +142,12 @@ type ListHistoricalBarsParams struct {
 type ListHistoricalBarsResponse = []Bar
 
 type Bar struct {
-	Open      decimal.Decimal `json:"open"`
-	High      decimal.Decimal `json:"high"`
-	Low       decimal.Decimal `json:"low"`
-	Close     decimal.Decimal `json:"close"`
-	Volume    decimal.Decimal `json:"volume"`
-	Timestamp time.Time       `json:"date"`
+	Open     decimal.Decimal `json:"open"`
+	High     decimal.Decimal `json:"high"`
+	Low      decimal.Decimal `json:"low"`
+	Close    decimal.Decimal `json:"close"`
+	Volume   decimal.Decimal `json:"volume"`
+	DateTime types.DateTime  `json:"date"`
 }
 
 type ListStockKeyMetricsParams struct {
