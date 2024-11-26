@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/shopspring/decimal"
 
@@ -129,6 +130,25 @@ func ParseCompanyProfileCSVRecord(header []string, record []string) (*BulkCompan
 		return nil, fmt.Errorf("unmarshaling record: %w", err)
 	}
 	return &profile, nil
+}
+
+type ListHistoricalBarsParams struct {
+	Timeframe Timeframe  `path:"timeframe,required"`
+	Symbol    string     `path:"symbol,required"`
+	Since     types.Date `query:"since"`
+	Until     types.Date `query:"until"`
+	Extended  bool       `query:"extended"`
+}
+
+type ListHistoricalBarsResponse = []Bar
+
+type Bar struct {
+	Open      decimal.Decimal `json:"open"`
+	High      decimal.Decimal `json:"high"`
+	Low       decimal.Decimal `json:"low"`
+	Close     decimal.Decimal `json:"close"`
+	Volume    decimal.Decimal `json:"volume"`
+	Timestamp time.Time       `json:"date"`
 }
 
 type ListStockKeyMetricsParams struct {

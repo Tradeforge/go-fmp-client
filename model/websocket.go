@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"log/slog"
 
 	"github.com/shopspring/decimal"
@@ -74,4 +75,8 @@ type WebsocketQuote struct {
 	BidSize     decimal.Decimal `json:"bs"`
 	LastPrice   decimal.Decimal `json:"lp"`
 	LastUpdated int64           `json:"t"`
+}
+
+func (q WebsocketQuote) MarshalBinary() ([]byte, error) {
+	return json.Marshal(q)
 }

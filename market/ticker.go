@@ -20,6 +20,7 @@ const (
 	BatchGetCompanyProfilePath = "/api/v3/profile/:symbols"
 	BulkGetCompanyProfilePath  = "/stable/profile-bulk"
 
+	ListHistoricalBarsPath   = "/api/v3/historical-chart/:timeframe/:symbol"
 	ListTickerKeyMetricsPath = "/api/v3/key-metrics/:symbol"
 	ListTickerRatiosPath     = "/api/v3/ratios/:symbol"
 )
@@ -90,6 +91,12 @@ func (tc *TickerClient) BulkGetCompanyProfile(ctx context.Context, params *model
 		res = append(res, *p)
 	}
 
+	return res, err
+}
+
+func (tc *TickerClient) ListHistoricalBars(ctx context.Context, params *model.ListHistoricalBarsParams, opts ...model.RequestOption) (model.ListHistoricalBarsResponse, error) {
+	var res model.ListHistoricalBarsResponse
+	_, err := tc.Call(ctx, http.MethodGet, ListHistoricalBarsPath, params, &res, opts...)
 	return res, err
 }
 
