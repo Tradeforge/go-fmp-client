@@ -134,8 +134,8 @@ func ParseCompanyProfileCSVRecord(header []string, record []string) (*BulkCompan
 type ListHistoricalBarsParams struct {
 	Timeframe Timeframe  `path:"timeframe,required"`
 	Symbol    string     `path:"symbol,required"`
-	Since     types.Date `query:"from"`
-	Until     types.Date `query:"to"`
+	Since     types.Date `query:"from,omitempty"`
+	Until     types.Date `query:"to,omitempty"`
 	Extended  bool       `query:"extended"`
 }
 
@@ -152,11 +152,14 @@ type Bar struct {
 
 type ListHistoricalEODBarsParams struct {
 	Symbol string     `path:"symbol,required"`
-	Since  types.Date `query:"from"`
-	Until  types.Date `query:"to"`
+	Since  types.Date `query:"from,omitempty"`
+	Until  types.Date `query:"to,omitempty"`
 }
 
-type ListHistoricalEODBarsResponse = []EODBar
+type ListHistoricalEODBarsResponse struct {
+	Symbol  string   `json:"symbol"`
+	EODBars []EODBar `json:"historical"`
+}
 
 type EODBar struct {
 	Date          types.Date      `json:"date"`
