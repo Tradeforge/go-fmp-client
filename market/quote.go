@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	GetRealTimeQuotePath = "/api/v3/stock/full/real-time-price/:symbol"
-	GetFullPricePath     = "/api/v3/quote/:symbol"
-	GetPriceChangePath   = "/api/v3/stock-price-target/:symbol"
+	GetFullPricePath      = "/api/v3/quote/:symbol"
+	GetPriceChangePath    = "/api/v3/stock-price-target/:symbol"
+	BatchGetFullPricePath = "/api/v3/quote/:symbols"
 
-	BatchGetRealTimeQuotePath = "/api/v3/stock/full/real-time-price/:symbols"
-	BatchGetFullPricePath     = "/api/v3/quote/:symbols"
+	GetRealtimeQuotePath      = "/api/v3/stock/full/real-time-price/:symbol"
+	BatchGetRealtimeQuotePath = "/api/v3/stock/full/real-time-price/:symbols"
+	ListAllRealtimeQuotesPath = "/api/v3/stock/full/real-time-price"
 )
 
 type QuoteClient struct {
@@ -54,13 +55,13 @@ func (qc *QuoteClient) GetPriceChange(ctx context.Context, params *model.GetPric
 
 func (qc *QuoteClient) BatchGetPriceChange(ctx context.Context, params *model.BatchGetPriceChangeParams, opts ...model.RequestOption) ([]model.GetPriceChangeResponse, error) {
 	var res []model.GetPriceChangeResponse
-	_, err := qc.Call(ctx, http.MethodGet, BatchGetRealTimeQuotePath, params, &res, opts...)
+	_, err := qc.Call(ctx, http.MethodGet, BatchGetRealtimeQuotePath, params, &res, opts...)
 	return res, err
 }
 
-func (qc *QuoteClient) GetRealTimeQuote(ctx context.Context, params *model.GetRealTimeQuoteParams, opts ...model.RequestOption) (response *model.GetRealTimeQuoteResponse, err error) {
-	var res []model.GetRealTimeQuoteResponse
-	_, err = qc.Call(ctx, http.MethodGet, GetRealTimeQuotePath, params, &res, opts...)
+func (qc *QuoteClient) GetRealtimeQuote(ctx context.Context, params *model.GetRealtimeQuoteParams, opts ...model.RequestOption) (response *model.GetRealtimeQuoteResponse, err error) {
+	var res []model.GetRealtimeQuoteResponse
+	_, err = qc.Call(ctx, http.MethodGet, GetRealtimeQuotePath, params, &res, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +71,14 @@ func (qc *QuoteClient) GetRealTimeQuote(ctx context.Context, params *model.GetRe
 	return &res[0], nil
 }
 
-func (qc *QuoteClient) BatchGetRealTimeQuote(ctx context.Context, params *model.BatchGetRealTimeQuoteParams, opts ...model.RequestOption) (model.BatchGetRealTimeQuoteResponse, error) {
-	var res model.BatchGetRealTimeQuoteResponse
-	_, err := qc.Call(ctx, http.MethodGet, BatchGetRealTimeQuotePath, params, &res, opts...)
+func (qc *QuoteClient) BatchGetRealtimeQuote(ctx context.Context, params *model.BatchGetRealtimeQuoteParams, opts ...model.RequestOption) (model.BatchGetRealtimeQuoteResponse, error) {
+	var res model.BatchGetRealtimeQuoteResponse
+	_, err := qc.Call(ctx, http.MethodGet, BatchGetRealtimeQuotePath, params, &res, opts...)
+	return res, err
+}
+
+func (qc *QuoteClient) ListAllRealtimeQuotes(ctx context.Context, opts ...model.RequestOption) (model.ListAllRealtimeQuotesResponse, error) {
+	var res model.ListAllRealtimeQuotesResponse
+	_, err := qc.Call(ctx, http.MethodGet, ListAllRealtimeQuotesPath, nil, &res, opts...)
 	return res, err
 }

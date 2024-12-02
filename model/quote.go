@@ -2,17 +2,17 @@ package model
 
 import "github.com/shopspring/decimal"
 
-type GetRealTimeQuoteParams struct {
+type GetRealtimeQuoteParams struct {
 	Symbol string `path:"symbol,required"`
 }
 
-type GetRealTimeQuoteResponse = TickerQuote
+type GetRealtimeQuoteResponse = TickerQuote
 
-type BatchGetRealTimeQuoteParams struct {
+type BatchGetRealtimeQuoteParams struct {
 	Symbols string `path:"symbols,required"`
 }
 
-type BatchGetRealTimeQuoteResponse = []TickerQuote
+type BatchGetRealtimeQuoteResponse = []TickerQuote
 
 type TickerQuote struct {
 	Symbol      string          `json:"symbol"`
@@ -23,6 +23,8 @@ type TickerQuote struct {
 	Volume      decimal.Decimal `json:"volume"`
 	LastUpdated int64           `json:"lastUpdated"`
 }
+
+type ListAllRealtimeQuotesResponse = []TickerQuote
 
 type GetFullPriceParams struct {
 	Symbol string `path:"symbol,required"`
