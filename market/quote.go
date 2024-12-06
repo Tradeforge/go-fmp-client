@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	GetFullPricePath      = "/api/v3/quote/:symbol"
-	GetPriceChangePath    = "/api/v3/stock-price-target/:symbol"
-	BatchGetFullPricePath = "/api/v3/quote/:symbols"
+	ListExchangeSymbolsPath = "/api/v3/symbol/:exchange"
+	GetFullPricePath        = "/api/v3/quote/:symbol"
+	GetPriceChangePath      = "/api/v3/stock-price-target/:symbol"
+	BatchGetFullPricePath   = "/api/v3/quote/:symbols"
 
 	GetRealtimeQuotePath      = "/api/v3/stock/full/real-time-price/:symbol"
 	BatchGetRealtimeQuotePath = "/api/v3/stock/full/real-time-price/:symbols"

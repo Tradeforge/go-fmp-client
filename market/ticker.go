@@ -136,3 +136,9 @@ func (tc *TickerClient) ListMostActiveTickers(ctx context.Context, opts ...model
 	_, err := tc.Call(ctx, http.MethodGet, ListMostActiveTickersPath, nil, &res, opts...)
 	return res, err
 }
+
+func (qc *TickerClient) ListExchangeSymbols(ctx context.Context, params *model.ListExchangeSymbolsParams, opts ...model.RequestOption) (model.ListExchangeSymbolsResponse, error) {
+	var res model.ListExchangeSymbolsResponse
+	_, err := qc.Call(ctx, http.MethodGet, ListExchangeSymbolsPath, params, &res, opts...)
+	return res, err
+}

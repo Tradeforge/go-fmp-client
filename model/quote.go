@@ -26,6 +26,12 @@ type TickerQuote struct {
 
 type ListAllRealtimeQuotesResponse = []TickerQuote
 
+type ListExchangeSymbolsParams struct {
+	Exchange string `path:"exchange,required"`
+}
+
+type ListExchangeSymbolsResponse = []TickerPrice
+
 type GetFullPriceParams struct {
 	Symbol string `path:"symbol,required"`
 }
