@@ -58,10 +58,12 @@ type TickerPrice struct {
 	YearHigh         decimal.Decimal `json:"yearHigh"`
 	PriceAvg50       decimal.Decimal `json:"priceAvg50"`
 	PriceAvg200      decimal.Decimal `json:"priceAvg200"`
+	MarketCap        decimal.Decimal `json:"marketCap"`
+	PE               decimal.Decimal `json:"pe"`
+	EPS              decimal.Decimal `json:"eps"`
+	Exchange         string          `json:"exchange"`
 	Volume           decimal.Decimal `json:"volume"`
 	AvgVolume        decimal.Decimal `json:"avgVolume"`
-	MarketCap        decimal.Decimal `json:"marketCap"`
-	Exchange         string          `json:"exchange"`
 	Timestamp        int64           `json:"timestamp"`
 }
 
