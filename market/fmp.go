@@ -22,6 +22,7 @@ type HTTPClientConfig struct {
 type HTTPClient struct {
 	QuoteClient
 	TickerClient
+	NewsClient
 	EventClient
 }
 
@@ -40,6 +41,9 @@ func NewHTTPClient(
 			Client: c,
 		},
 		TickerClient: TickerClient{
+			Client: c,
+		},
+		NewsClient: NewsClient{
 			Client: c,
 		},
 		EventClient: EventClient{

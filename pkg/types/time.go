@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
@@ -20,7 +21,7 @@ func DateFromTime(t time.Time) Date {
 func (d Date) Time() time.Time {
 	t, err := time.Parse(time.DateOnly, string(d))
 	if err != nil {
-		panic(errInvalidDateFormat)
+		panic(errors.Join(errInvalidTimeFormat, err))
 	}
 	return t
 }
@@ -40,7 +41,7 @@ func (d *Date) Scan(data any) error {
 func (d *Date) MarshalText() ([]byte, error) {
 	t, err := time.Parse(time.DateOnly, string(*d))
 	if err != nil {
-		return nil, errInvalidDateFormat
+		return nil, errors.Join(errInvalidTimeFormat, err)
 	}
 	return []byte(fmt.Sprintf("%04d-%02d-%02d", t.Year(), t.Month(), t.Day())), nil
 }
@@ -48,7 +49,7 @@ func (d *Date) MarshalText() ([]byte, error) {
 func (d *Date) UnmarshalText(data []byte) error {
 	t, err := time.Parse(time.DateOnly, string(data))
 	if err != nil {
-		return errInvalidDateFormat
+		return errors.Join(errInvalidTimeFormat, err)
 	}
 	*d = Date(t.Format(time.DateOnly))
 	return nil
@@ -67,7 +68,7 @@ type TimeHHMM string
 func (o TimeHHMM) Time() time.Time {
 	t, err := time.Parse(time.TimeOnly, string(o))
 	if err != nil {
-		panic(errInvalidTimeFormat)
+		panic(errors.Join(errInvalidTimeFormat, err))
 	}
 	return t
 }
@@ -75,7 +76,7 @@ func (o TimeHHMM) Time() time.Time {
 func (o TimeHHMM) Duration() time.Duration {
 	t, err := time.Parse(time.TimeOnly, string(o))
 	if err != nil {
-		panic(errInvalidTimeFormat)
+		panic(errors.Join(errInvalidTimeFormat, err))
 	}
 	return time.Duration(t.Hour())*time.Hour + time.Duration(t.Minute())*time.Minute
 }
@@ -89,7 +90,7 @@ func (o *TimeHHMM) Scan(data any) error {
 	case string:
 		parsed, err := time.Parse(time.TimeOnly, typed)
 		if err != nil {
-			panic(errInvalidTimeFormat)
+			panic(errors.Join(errInvalidTimeFormat, err))
 		}
 		t = parsed
 	case time.Time:
@@ -102,7 +103,7 @@ func (o *TimeHHMM) Scan(data any) error {
 func (o *TimeHHMM) MarshalText() ([]byte, error) {
 	t, err := time.Parse(time.TimeOnly, *(*string)(o))
 	if err != nil {
-		return nil, errInvalidTimeFormat
+		return nil, errors.Join(errInvalidTimeFormat, err)
 	}
 	return []byte(fmt.Sprintf("%02d:%02d", t.Hour(), t.Minute())), nil
 }
@@ -110,7 +111,7 @@ func (o *TimeHHMM) MarshalText() ([]byte, error) {
 func (o *TimeHHMM) UnmarshalText(data []byte) error {
 	t, err := time.Parse(time.TimeOnly, fmt.Sprintf("%s:00", string(data)))
 	if err != nil {
-		panic(errInvalidTimeFormat)
+		panic(errors.Join(errInvalidTimeFormat, err))
 	}
 	*o = TimeHHMM(t.Format(time.TimeOnly))
 	return nil
@@ -133,7 +134,7 @@ func DateTimeFromTime(t time.Time) DateTime {
 func (d DateTime) Time() time.Time {
 	t, err := time.Parse(time.DateTime, string(d))
 	if err != nil {
-		panic(errInvalidDateFormat)
+		panic(errors.Join(errInvalidTimeFormat, err))
 	}
 	return t
 }
@@ -153,7 +154,7 @@ func (d *DateTime) Scan(data any) error {
 func (d *DateTime) MarshalText() ([]byte, error) {
 	t, err := time.Parse(time.DateTime, string(*d))
 	if err != nil {
-		return nil, errInvalidDateTimeFormat
+		return nil, errors.Join(errInvalidDateTimeFormat, err)
 	}
 	return []byte(t.Format(time.DateTime)), nil
 }
@@ -161,7 +162,7 @@ func (d *DateTime) MarshalText() ([]byte, error) {
 func (d *DateTime) UnmarshalText(data []byte) error {
 	t, err := time.Parse(time.DateTime, string(data))
 	if err != nil {
-		return errInvalidDateTimeFormat
+		return errors.Join(errInvalidDateTimeFormat, err)
 	}
 	*d = DateTime(t.Format(time.DateTime))
 	return nil

@@ -7,14 +7,14 @@ import (
 )
 
 type GetHistoricalEarningsCalendarParams struct {
-	Symbol string      `json:"symbol"`
-	Since  *types.Date `json:"since"`
-	Until  *types.Date `json:"until"`
+	Symbol string      `path:"symbol"`
+	Since  *types.Date `query:"since"`
+	Until  *types.Date `query:"until"`
 }
 
 type GetEarningsCalendarParams struct {
-	Since *types.Date `json:"since"`
-	Until *types.Date `json:"until"`
+	Since *types.Date `query:"since"`
+	Until *types.Date `query:"until"`
 }
 
 type GetEarningsCalendarResponse struct {
