@@ -20,6 +20,7 @@ type HTTPClientConfig struct {
 
 // HTTPClient defines a client to the Polygon REST API.
 type HTTPClient struct {
+	ClockClient
 	QuoteClient
 	TickerClient
 	NewsClient
@@ -37,6 +38,9 @@ func NewHTTPClient(
 	)
 
 	return &HTTPClient{
+		ClockClient: ClockClient{
+			Client: c,
+		},
 		QuoteClient: QuoteClient{
 			Client: c,
 		},

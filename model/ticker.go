@@ -13,7 +13,7 @@ type GetCompanyProfileParams struct {
 	Symbol string `path:"symbol,required"`
 }
 
-type BatchGetCompanyProfilesParams struct {
+type ListCompanyProfilesParams struct {
 	Symbols string `path:"symbols,required"`
 }
 

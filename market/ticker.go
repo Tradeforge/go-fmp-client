@@ -16,9 +16,9 @@ const (
 	ListGainersPath           = "/api/v3/stock_market/gainers"
 	ListLosersPath            = "/api/v3/stock_market/losers"
 
-	GetCompanyProfilePath      = "/api/v3/profile/:symbol"
-	BatchGetCompanyProfilePath = "/api/v3/profile/:symbols"
-	BulkGetCompanyProfilePath  = "/stable/profile-bulk"
+	GetCompanyProfilePath     = "/api/v3/profile/:symbol"
+	ListCompanyProfilesPath   = "/api/v3/profile/:symbols"
+	BulkGetCompanyProfilePath = "/stable/profile-bulk"
 
 	ListHistoricalBarsPath    = "/api/v3/historical-chart/:timeframe/:symbol"
 	ListHistoricalEODBarsPath = "/api/v3/historical-price-full/:symbol"
@@ -48,9 +48,9 @@ func (tc *TickerClient) GetCompanyProfile(ctx context.Context, params *model.Get
 	return &res[0], nil
 }
 
-func (tc *TickerClient) BatchGetCompanyProfile(ctx context.Context, params *model.BatchGetCompanyProfilesParams, opts ...model.RequestOption) ([]model.GetCompanyProfileResponse, error) {
+func (tc *TickerClient) ListCompanyProfiles(ctx context.Context, params *model.ListCompanyProfilesParams, opts ...model.RequestOption) ([]model.GetCompanyProfileResponse, error) {
 	var res []model.GetCompanyProfileResponse
-	_, err := tc.Call(ctx, http.MethodGet, BatchGetCompanyProfilePath, params, &res, opts...)
+	_, err := tc.Call(ctx, http.MethodGet, ListCompanyProfilesPath, params, &res, opts...)
 	return res, err
 }
 
@@ -137,8 +137,8 @@ func (tc *TickerClient) ListMostActiveTickers(ctx context.Context, opts ...model
 	return res, err
 }
 
-func (qc *TickerClient) ListExchangeSymbols(ctx context.Context, params *model.ListExchangeSymbolsParams, opts ...model.RequestOption) (model.ListExchangeSymbolsResponse, error) {
+func (tc *TickerClient) ListExchangeSymbols(ctx context.Context, params *model.ListExchangeSymbolsParams, opts ...model.RequestOption) (model.ListExchangeSymbolsResponse, error) {
 	var res model.ListExchangeSymbolsResponse
-	_, err := qc.Call(ctx, http.MethodGet, ListExchangeSymbolsPath, params, &res, opts...)
+	_, err := tc.Call(ctx, http.MethodGet, ListExchangeSymbolsPath, params, &res, opts...)
 	return res, err
 }

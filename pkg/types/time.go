@@ -65,6 +65,10 @@ func (d Date) String() string {
 
 type TimeHHMM string
 
+func TimeHHMMFromTime(t time.Time) TimeHHMM {
+	return TimeHHMM(t.Format(time.TimeOnly))
+}
+
 func (o TimeHHMM) Time() time.Time {
 	t, err := time.Parse(time.TimeOnly, string(o))
 	if err != nil {
