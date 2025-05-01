@@ -1,6 +1,10 @@
 package model
 
-import "github.com/shopspring/decimal"
+import (
+	"github.com/shopspring/decimal"
+
+	"go.tradeforge.dev/fmp/pkg/types"
+)
 
 type GetRealtimeQuoteParams struct {
 	Symbol string `path:"symbol,required"`
@@ -22,6 +26,45 @@ type TickerQuote struct {
 	AskSize     decimal.Decimal `json:"askSize"`
 	Volume      decimal.Decimal `json:"volume"`
 	LastUpdated int64           `json:"lastUpdated"`
+}
+
+type ListHistoricalBarsParams struct {
+	Timeframe Timeframe  `path:"timeframe,required"`
+	Symbol    string     `query:"symbol,required"`
+	Since     types.Date `query:"from,omitempty"`
+	Until     types.Date `query:"to,omitempty"`
+}
+
+type ListHistoricalBarsResponse = []Bar
+
+type Bar struct {
+	Open     decimal.Decimal `json:"open"`
+	High     decimal.Decimal `json:"high"`
+	Low      decimal.Decimal `json:"low"`
+	Close    decimal.Decimal `json:"close"`
+	Volume   decimal.Decimal `json:"volume"`
+	DateTime types.DateTime  `json:"date"`
+}
+
+type ListHistoricalPricesEODParams struct {
+	Symbol string     `query:"symbol,required"`
+	Since  types.Date `query:"from,omitempty"`
+	Until  types.Date `query:"to,omitempty"`
+}
+
+type ListHistoricalPricesEODResponse = []HistoricalPriceEOD
+
+type HistoricalPriceEOD struct {
+	Symbol        string          `json:"symbol"`
+	Date          types.Date      `json:"date"`
+	Open          decimal.Decimal `json:"open"`
+	High          decimal.Decimal `json:"high"`
+	Low           decimal.Decimal `json:"low"`
+	Close         decimal.Decimal `json:"close"`
+	Volume        decimal.Decimal `json:"volume"`
+	Change        decimal.Decimal `json:"change"`
+	ChangePercent decimal.Decimal `json:"changePercent"`
+	VWAP          decimal.Decimal `json:"vwap"`
 }
 
 type ListAllRealtimeQuotesResponse = []TickerQuote
@@ -63,7 +106,6 @@ type TickerPrice struct {
 	EPS              decimal.Decimal `json:"eps"`
 	Exchange         string          `json:"exchange"`
 	Volume           decimal.Decimal `json:"volume"`
-	AvgVolume        decimal.Decimal `json:"avgVolume"`
 	Timestamp        int64           `json:"timestamp"`
 }
 
@@ -88,4 +130,18 @@ type GetPriceChangeResponse struct {
 	Change10Y decimal.Decimal `json:"10Y"`
 	ChangeYTD decimal.Decimal `json:"ytd"`
 	ChangeMax decimal.Decimal `json:"max"`
+}
+
+type ListHistoricalMarketCapParams struct {
+	Symbol string     `query:"symbol,required"`
+	Since  types.Date `query:"from,omitempty"`
+	Until  types.Date `query:"to,omitempty"`
+}
+
+type ListHistoricalMarketCapResponse []HistoricalMarketCap
+
+type HistoricalMarketCap struct {
+	Symbol string          `json:"symbol"`
+	Date   types.Date      `json:"date"`
+	Value  decimal.Decimal `json:"marketCap"`
 }
