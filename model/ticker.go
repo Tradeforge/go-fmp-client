@@ -265,3 +265,13 @@ type StockRatios struct {
 
     EnterpriseValueMultiple decimal.Decimal `json:"enterpriseValueMultiple"`
 }
+
+type ListIndexConstituentsResponse = []IndexConstituent
+
+type IndexConstituent struct {
+    Symbol         string  `json:"symbol"`
+    Name           string  `json:"name"`
+    CIK            string  `json:"cik"`
+    Sector         string  `json:"sector"`
+    DateFirstAdded *string `json:"dateFirstAdded"`
+}
