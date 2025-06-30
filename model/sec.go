@@ -10,7 +10,8 @@ import (
 )
 
 type ListInsiderTradesParams struct {
-	Page *uint `query:"page,omitempty"`
+	Date *types.Date `query:"date,omitempty"`
+	Page *uint       `query:"page,omitempty"`
 }
 
 type ListInsiderTradesResponse []InsiderTrade
