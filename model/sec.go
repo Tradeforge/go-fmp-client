@@ -27,7 +27,7 @@ type InsiderTrade struct {
 	SecuritiesTransacted     decimal.Decimal `json:"securitiesTransacted"`
 	OwnerName                string          `json:"reportingName"`
 	OwnerType                string          `json:"typeOfOwner"`
-	AcquisitionOrDisposition string          `json:"acquistionOrDisposition"`
+	AcquisitionOrDisposition string          `json:"acquisitionOrDisposition"`
 	Price                    decimal.Decimal `json:"price"`
 	FiledAt                  types.DateTime  `json:"filingDate"`
 }
