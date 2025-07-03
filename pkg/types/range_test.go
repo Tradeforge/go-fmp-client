@@ -5,6 +5,7 @@ import (
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseRange52w(t *testing.T) {
@@ -50,7 +51,7 @@ func TestParseRange52w(t *testing.T) {
 				assert.Error(t, err)
 				return
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equalf(t, tt.want, got, "ParseRange52w(%v, %v)", tt.args.r, tt.args.separator)
 		})
 	}

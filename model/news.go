@@ -4,7 +4,7 @@ import (
 	"go.tradeforge.dev/fmp/pkg/types"
 )
 
-type ListStockNewsParams struct {
+type GetStockNewsParams struct {
 	Symbols *string     `query:"tickers"`
 	Since   *types.Date `query:"from"`
 	Until   *types.Date `query:"to"`
@@ -12,7 +12,7 @@ type ListStockNewsParams struct {
 	Limit   *uint       `query:"limit"`
 }
 
-type ListStockNewsResponse []NewsArticle
+type GetStockNewsResponse []NewsArticle
 
 type NewsArticle struct {
 	Symbol        string         `json:"symbol"`
@@ -24,11 +24,11 @@ type NewsArticle struct {
 	URL           string         `json:"url"`
 }
 
-type ListNewsRSSFeedParams struct {
+type GetNewsRSSFeedParams struct {
 	Page uint `query:"page"`
 }
 
-type ListNewsRSSFeedResponse []NewsArticleWithSentiment
+type GetNewsRSSFeedResponse []NewsArticleWithSentiment
 
 type NewsArticleWithSentiment struct {
 	Symbol         string         `json:"symbol"`

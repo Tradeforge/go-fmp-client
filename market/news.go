@@ -9,22 +9,22 @@ import (
 )
 
 const (
-	ListStockNewsPath   = "/api/v3/stock_news"
-	ListNewsRSSFeedPath = "/api/v4/stock-news-sentiments-rss-feed"
+	GetStockNewsPath   = "/api/v3/stock_news"
+	GetNewsRSSFeedPath = "/api/v4/stock-news-sentiments-rss-feed"
 )
 
 type NewsClient struct {
 	*rest.Client
 }
 
-func (nc *NewsClient) ListStockNews(ctx context.Context, params model.ListStockNewsParams, opts ...model.RequestOption) (model.ListStockNewsResponse, error) {
-	var res model.ListStockNewsResponse
-	_, err := nc.Call(ctx, http.MethodGet, ListStockNewsPath, params, &res, opts...)
+func (nc *NewsClient) GetStockNews(ctx context.Context, params model.GetStockNewsParams, opts ...model.RequestOption) (model.GetStockNewsResponse, error) {
+	var res model.GetStockNewsResponse
+	_, err := nc.Call(ctx, http.MethodGet, GetStockNewsPath, params, &res, opts...)
 	return res, err
 }
 
-func (nc *NewsClient) ListNewsRSSFeed(ctx context.Context, params model.ListNewsRSSFeedParams, opts ...model.RequestOption) (model.ListNewsRSSFeedResponse, error) {
-	var res model.ListNewsRSSFeedResponse
-	_, err := nc.Call(ctx, http.MethodGet, ListNewsRSSFeedPath, params, &res, opts...)
+func (nc *NewsClient) GetNewsRSSFeed(ctx context.Context, params model.GetNewsRSSFeedParams, opts ...model.RequestOption) (model.GetNewsRSSFeedResponse, error) {
+	var res model.GetNewsRSSFeedResponse
+	_, err := nc.Call(ctx, http.MethodGet, GetNewsRSSFeedPath, params, &res, opts...)
 	return res, err
 }

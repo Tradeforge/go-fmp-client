@@ -9,17 +9,17 @@ import (
 )
 
 const (
-	ListAllExchangesTradingHoursPath = "/api/v3/is-the-market-open-all"
-	GetExchangeHolidaysPath          = "/api/v3/is-the-market-open"
+	GetAllExchangesTradingHoursPath = "/api/v3/is-the-market-open-all"
+	GetExchangeHolidaysPath         = "/api/v3/is-the-market-open"
 )
 
 type ClockClient struct {
 	*rest.Client
 }
 
-func (cc *ClockClient) ListAllExchangesTradingHours(ctx context.Context, opts ...model.RequestOption) (model.ListAllExchangesTradingHoursResponse, error) {
-	var res model.ListAllExchangesTradingHoursResponse
-	_, err := cc.Call(ctx, http.MethodGet, ListAllExchangesTradingHoursPath, nil, &res, opts...)
+func (cc *ClockClient) GetAllExchangesTradingHours(ctx context.Context, opts ...model.RequestOption) (model.GetAllExchangesTradingHoursResponse, error) {
+	var res model.GetAllExchangesTradingHoursResponse
+	_, err := cc.Call(ctx, http.MethodGet, GetAllExchangesTradingHoursPath, nil, &res, opts...)
 	return res, err
 }
 
@@ -32,7 +32,7 @@ func (cc *ClockClient) GetExchangeHolidays(ctx context.Context, params model.Get
 		if holiday.Year() != params.Year {
 			continue
 		}
-		for _, h := range holiday.List() {
+		for _, h := range holiday.Get() {
 			res = append(res, model.Holiday{
 				Date: h.Date,
 				Name: h.Name,

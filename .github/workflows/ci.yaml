@@ -26,10 +26,9 @@ jobs:
         with:
           cache: false # as of 2024-03-06, setup-go@v4 cache conflicts with golangci-lint-action@v3 cache https://github.com/golangci/golangci-lint-action/issues/135
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.60.3
-          args: --timeout=3m
+          version: v2.1.6
   test:
     name: Run Go test
     runs-on: ubuntu-latest

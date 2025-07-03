@@ -10,27 +10,24 @@ import (
 )
 
 const (
-	ListExchangeSymbolsPath = "/api/v3/symbol/:exchange"
-	GetFullPricePath        = "/api/v3/quote/:symbol"
-	GetPriceChangePath      = "/api/v3/stock-price-target/:symbol"
-	BatchGetFullPricePath   = "/api/v3/quote/:symbols"
+	GetQuotePath       = "/stable/quote"
+	GetPriceChangePath = "/stable/stock-price-change"
 
-	GetRealtimeQuotePath      = "/api/v3/stock/full/real-time-price/:symbol"
-	BatchGetRealtimeQuotePath = "/api/v3/stock/full/real-time-price/:symbols"
-	ListAllRealtimeQuotesPath = "/api/v3/stock/full/real-time-price"
+	BatchGetQuotesPath           = "/stable/batch-quote"
+	BatchGetQuotesByExchangePath = "/stable/batch-exchange-quote"
 
-	ListHistoricalBarsPath      = "/stable/historical-chart/:timeframe"
-	ListHistoricalPricesEODPath = "/stable/historical-price-eod/full"
-	ListHistoricalMarketCapPath = "/stable/historical-market-capitalization"
+	GetHistoricalBarsPath      = "/stable/historical-chart/:timeframe"
+	GetHistoricalPricesEODPath = "/stable/historical-price-eod/full"
+	GetHistoricalMarketCapPath = "/stable/historical-market-capitalization"
 )
 
 type QuoteClient struct {
 	*rest.Client
 }
 
-func (qc *QuoteClient) GetFullPrice(ctx context.Context, params *model.GetFullPriceParams, opts ...model.RequestOption) (response *model.GetFullPriceResponse, err error) {
-	var res []model.GetFullPriceResponse
-	_, err = qc.Call(ctx, http.MethodGet, GetFullPricePath, params, &res, opts...)
+func (qc *QuoteClient) GetQuote(ctx context.Context, params *model.GetQuoteParams, opts ...model.RequestOption) (response *model.GetQuoteResponse, err error) {
+	var res []model.GetQuoteResponse
+	_, err = qc.Call(ctx, http.MethodGet, GetQuotePath, params, &res, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +37,17 @@ func (qc *QuoteClient) GetFullPrice(ctx context.Context, params *model.GetFullPr
 	return &res[0], nil
 }
 
-func (qc *QuoteClient) BatchGetFullPrice(ctx context.Context, params *model.BatchGetFullPriceParams, opts ...model.RequestOption) (model.BatchGetFullPriceResponse, error) {
-	var res model.BatchGetFullPriceResponse
-	_, err := qc.Call(ctx, http.MethodGet, BatchGetFullPricePath, params, &res, opts...)
+func (qc *QuoteClient) BatchGetQuotes(ctx context.Context, params *model.BatchGetQuoteParams, opts ...model.RequestOption) (model.BatchGetQuoteResponse, error) {
+	var res model.BatchGetQuoteResponse
+	_, err := qc.Call(ctx, http.MethodGet, BatchGetQuotesPath, params, &res, opts...)
+	return res, err
+}
+
+func (qc *QuoteClient) BatchGetQuotesByExchange(ctx context.Context, params *model.BatchGetQuotesByExchangeParams, opts ...model.RequestOption) (model.BatchGetQuotesByExchangeResponse, error) {
+	params.Short = false // Ensure we always get full prices, not short ones.
+
+	var res model.BatchGetQuotesByExchangeResponse
+	_, err := qc.Call(ctx, http.MethodGet, BatchGetQuotesByExchangePath, params, &res, opts...)
 	return res, err
 }
 
@@ -58,50 +63,20 @@ func (qc *QuoteClient) GetPriceChange(ctx context.Context, params *model.GetPric
 	return &res[0], nil
 }
 
-func (qc *QuoteClient) BatchGetPriceChange(ctx context.Context, params *model.BatchGetPriceChangeParams, opts ...model.RequestOption) ([]model.GetPriceChangeResponse, error) {
-	var res []model.GetPriceChangeResponse
-	_, err := qc.Call(ctx, http.MethodGet, BatchGetRealtimeQuotePath, params, &res, opts...)
+func (tc *TickerClient) GetHistoricalBars(ctx context.Context, params *model.GetHistoricalBarsParams, opts ...model.RequestOption) (model.GetHistoricalBarsResponse, error) {
+	var res model.GetHistoricalBarsResponse
+	_, err := tc.Call(ctx, http.MethodGet, GetHistoricalBarsPath, params, &res, opts...)
 	return res, err
 }
 
-func (qc *QuoteClient) GetRealtimeQuote(ctx context.Context, params *model.GetRealtimeQuoteParams, opts ...model.RequestOption) (response *model.GetRealtimeQuoteResponse, err error) {
-	var res []model.GetRealtimeQuoteResponse
-	_, err = qc.Call(ctx, http.MethodGet, GetRealtimeQuotePath, params, &res, opts...)
-	if err != nil {
-		return nil, err
-	}
-	if len(res) != 1 {
-		return nil, fmt.Errorf("expected response of length 1, got %d", len(res))
-	}
-	return &res[0], nil
-}
-
-func (qc *QuoteClient) BatchGetRealtimeQuote(ctx context.Context, params *model.BatchGetRealtimeQuoteParams, opts ...model.RequestOption) (model.BatchGetRealtimeQuoteResponse, error) {
-	var res model.BatchGetRealtimeQuoteResponse
-	_, err := qc.Call(ctx, http.MethodGet, BatchGetRealtimeQuotePath, params, &res, opts...)
+func (tc *TickerClient) GetHistoricalPricesEOD(ctx context.Context, params *model.GetHistoricalPricesEODParams, opts ...model.RequestOption) (model.GetHistoricalPricesEODResponse, error) {
+	var res model.GetHistoricalPricesEODResponse
+	_, err := tc.Call(ctx, http.MethodGet, GetHistoricalPricesEODPath, params, &res, opts...)
 	return res, err
 }
 
-func (qc *QuoteClient) ListAllRealtimeQuotes(ctx context.Context, opts ...model.RequestOption) (model.ListAllRealtimeQuotesResponse, error) {
-	var res model.ListAllRealtimeQuotesResponse
-	_, err := qc.Call(ctx, http.MethodGet, ListAllRealtimeQuotesPath, nil, &res, opts...)
-	return res, err
-}
-
-func (tc *TickerClient) ListHistoricalBars(ctx context.Context, params *model.ListHistoricalBarsParams, opts ...model.RequestOption) (model.ListHistoricalBarsResponse, error) {
-	var res model.ListHistoricalBarsResponse
-	_, err := tc.Call(ctx, http.MethodGet, ListHistoricalBarsPath, params, &res, opts...)
-	return res, err
-}
-
-func (tc *TickerClient) ListHistoricalPricesEOD(ctx context.Context, params *model.ListHistoricalPricesEODParams, opts ...model.RequestOption) (model.ListHistoricalPricesEODResponse, error) {
-	var res model.ListHistoricalPricesEODResponse
-	_, err := tc.Call(ctx, http.MethodGet, ListHistoricalPricesEODPath, params, &res, opts...)
-	return res, err
-}
-
-func (tc *TickerClient) ListHistoricalMarketCap(ctx context.Context, params *model.ListHistoricalMarketCapParams, opts ...model.RequestOption) (model.ListHistoricalMarketCapResponse, error) {
-	var res model.ListHistoricalMarketCapResponse
-	_, err := tc.Call(ctx, http.MethodGet, ListHistoricalMarketCapPath, params, &res, opts...)
+func (tc *TickerClient) GetHistoricalMarketCap(ctx context.Context, params *model.GetHistoricalMarketCapParams, opts ...model.RequestOption) (model.GetHistoricalMarketCapResponse, error) {
+	var res model.GetHistoricalMarketCapResponse
+	_, err := tc.Call(ctx, http.MethodGet, GetHistoricalMarketCapPath, params, &res, opts...)
 	return res, err
 }

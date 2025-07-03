@@ -10,10 +10,10 @@ import (
 )
 
 type GetCompanyProfileParams struct {
-	Symbol string `path:"symbol,required"`
+	Symbol string `query:"symbol,required"`
 }
 
-type ListCompanyProfilesParams struct {
+type GetCompanyProfilesParams struct {
 	Symbols string `path:"symbols,required"`
 }
 
@@ -131,13 +131,13 @@ func ParseCompanyProfileCSVRecord(header []string, record []string) (*BulkCompan
 	return &profile, nil
 }
 
-type ListStockKeyMetricsParams struct {
-	Symbol string `path:"symbol,required"`
+type GetStockKeyMetricsParams struct {
+	Symbol string `query:"symbol,required"`
 	Period string `query:"period,omitempty"`
 	Limit  int    `query:"limit,omitempty"`
 }
 
-type ListTickerKeyMetricsResponse = []StockKeyMetrics
+type GetTickerKeyMetricsResponse = []StockKeyMetrics
 
 type StockKeyMetrics struct {
 	Symbol                                 string          `json:"symbol"`
@@ -200,13 +200,13 @@ type StockKeyMetrics struct {
 	CapexPerShare                          decimal.Decimal `json:"capexPerShare"`
 }
 
-type ListStockRatiosParams struct {
-	Symbol string `path:"symbol,required"`
+type GetStockRatiosParams struct {
+	Symbol string `query:"symbol,required"`
 	Period string `query:"period,omitempty"`
 	Limit  int    `query:"limit,omitempty"`
 }
 
-type ListTickerRatiosResponse = []StockRatios
+type GetTickerRatiosResponse = []StockRatios
 
 type StockRatios struct {
 	Symbol string `json:"symbol"`
@@ -266,7 +266,21 @@ type StockRatios struct {
 	EnterpriseValueMultiple decimal.Decimal `json:"enterpriseValueMultiple"`
 }
 
-type ListIndexConstituentsResponse = []IndexConstituent
+type GetMostActiveTickersResponse = []PartialTicker
+
+type PartialTicker struct {
+	Symbol        string          `json:"symbol"`
+	Name          string          `json:"name"`
+	Price         decimal.Decimal `json:"price"`
+	Change        decimal.Decimal `json:"change"`
+	ChangePercent decimal.Decimal `json:"changePercent"`
+}
+
+type GetGainersResponse = []PartialTicker
+
+type GetLosersResponse = []PartialTicker
+
+type GetIndexConstituentsResponse = []IndexConstituent
 
 type IndexConstituent struct {
 	Symbol         string  `json:"symbol"`

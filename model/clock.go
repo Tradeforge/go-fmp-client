@@ -14,7 +14,7 @@ const (
 	tradingHoursTimeFormat = "3:04 PM"
 )
 
-type ListAllExchangesTradingHoursResponse []ExchangeTradingHours
+type GetAllExchangesTradingHoursResponse []ExchangeTradingHours
 
 type ExchangeTradingHours struct {
 	Exchange     string         `json:"name"`
@@ -79,8 +79,8 @@ func (h mappedHolidays) Year() int {
 	return h["year"].(int)
 }
 
-func (h mappedHolidays) List() []Holiday {
-	var holidays []Holiday
+func (h mappedHolidays) Get() []Holiday {
+	holidays := make([]Holiday, 0, len(h)-1) // -1 to skip the "year" key
 	for k, v := range h {
 		if k == "year" {
 			continue

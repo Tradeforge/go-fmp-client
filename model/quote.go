@@ -6,18 +6,6 @@ import (
 	"go.tradeforge.dev/fmp/pkg/types"
 )
 
-type GetRealtimeQuoteParams struct {
-	Symbol string `path:"symbol,required"`
-}
-
-type GetRealtimeQuoteResponse = TickerQuote
-
-type BatchGetRealtimeQuoteParams struct {
-	Symbols string `path:"symbols,required"`
-}
-
-type BatchGetRealtimeQuoteResponse = []TickerQuote
-
 type TickerQuote struct {
 	Symbol      string          `json:"symbol"`
 	BidPrice    decimal.Decimal `json:"bidPrice"`
@@ -28,14 +16,14 @@ type TickerQuote struct {
 	LastUpdated int64           `json:"lastUpdated"`
 }
 
-type ListHistoricalBarsParams struct {
+type GetHistoricalBarsParams struct {
 	Timeframe Timeframe  `path:"timeframe,required"`
 	Symbol    string     `query:"symbol,required"`
 	Since     types.Date `query:"from,omitempty"`
 	Until     types.Date `query:"to,omitempty"`
 }
 
-type ListHistoricalBarsResponse = []Bar
+type GetHistoricalBarsResponse = []Bar
 
 type Bar struct {
 	Open     decimal.Decimal `json:"open"`
@@ -46,13 +34,13 @@ type Bar struct {
 	DateTime types.DateTime  `json:"date"`
 }
 
-type ListHistoricalPricesEODParams struct {
+type GetHistoricalPricesEODParams struct {
 	Symbol string     `query:"symbol,required"`
 	Since  types.Date `query:"from,omitempty"`
 	Until  types.Date `query:"to,omitempty"`
 }
 
-type ListHistoricalPricesEODResponse = []HistoricalPriceEOD
+type GetHistoricalPricesEODResponse = []HistoricalPriceEOD
 
 type HistoricalPriceEOD struct {
 	Symbol        string          `json:"symbol"`
@@ -67,25 +55,24 @@ type HistoricalPriceEOD struct {
 	VWAP          decimal.Decimal `json:"vwap"`
 }
 
-type ListAllRealtimeQuotesResponse = []TickerQuote
-
-type ListExchangeSymbolsParams struct {
-	Exchange string `path:"exchange,required"`
+type GetQuoteParams struct {
+	Symbol string `query:"symbol,required"`
 }
 
-type ListExchangeSymbolsResponse = []TickerPrice
+type GetQuoteResponse = TickerPrice
 
-type GetFullPriceParams struct {
-	Symbol string `path:"symbol,required"`
+type BatchGetQuoteParams struct {
+	Symbols string `query:"symbols,required"`
 }
 
-type GetFullPriceResponse = TickerPrice
+type BatchGetQuoteResponse = []TickerPrice
 
-type BatchGetFullPriceParams struct {
-	Symbols string `path:"symbols,required"`
+type BatchGetQuotesByExchangeParams struct {
+	Exchange string `query:"exchange,required"`
+	Short    bool   `query:"short"` // DO NOT USE: we always expect full prices to be returned.
 }
 
-type BatchGetFullPriceResponse = []TickerPrice
+type BatchGetQuotesByExchangeResponse = []TickerPrice
 
 type TickerPrice struct {
 	Symbol           string          `json:"symbol"`
@@ -109,12 +96,8 @@ type TickerPrice struct {
 	Timestamp        int64           `json:"timestamp"`
 }
 
-type BatchGetPriceChangeParams struct {
-	Symbols string `path:"symbols,required"`
-}
-
 type GetPriceChangeParams struct {
-	Symbol string `path:"symbol,required"`
+	Symbol string `query:"symbol,required"`
 }
 
 type GetPriceChangeResponse struct {
@@ -132,13 +115,13 @@ type GetPriceChangeResponse struct {
 	ChangeMax decimal.Decimal `json:"max"`
 }
 
-type ListHistoricalMarketCapParams struct {
+type GetHistoricalMarketCapParams struct {
 	Symbol string     `query:"symbol,required"`
 	Since  types.Date `query:"from,omitempty"`
 	Until  types.Date `query:"to,omitempty"`
 }
 
-type ListHistoricalMarketCapResponse []HistoricalMarketCap
+type GetHistoricalMarketCapResponse []HistoricalMarketCap
 
 type HistoricalMarketCap struct {
 	Symbol string          `json:"symbol"`

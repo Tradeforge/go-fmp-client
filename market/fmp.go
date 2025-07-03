@@ -60,6 +60,23 @@ type WebsocketClientConfig struct {
 	APIKey string `validate:"required" env:"FMP_API_KEY"`
 }
 
+type WebsocketClient struct {
+	ctx    context.Context
+	config WebsocketClientConfig
+	logger *slog.Logger
+
+	manager *manager.Manager
+
+	connectOnce    sync.Once
+	connectionLock sync.Mutex
+	connection     *websocket.Conn
+
+	subscribeQuotesLock sync.RWMutex
+
+	events chan model.WebsocketMesssage
+	quotes chan model.WebsocketQuote
+}
+
 func NewWebsocketClient(
 	ctx context.Context,
 	config WebsocketClientConfig,
@@ -77,21 +94,4 @@ func NewWebsocketClient(
 		events: make(chan model.WebsocketMesssage),
 		quotes: make(chan model.WebsocketQuote),
 	}, nil
-}
-
-type WebsocketClient struct {
-	ctx    context.Context
-	config WebsocketClientConfig
-	logger *slog.Logger
-
-	manager *manager.Manager
-
-	connectOnce    sync.Once
-	connectionLock sync.Mutex
-	connection     *websocket.Conn
-
-	subscribeQuotesLock sync.RWMutex
-
-	events chan model.WebsocketMesssage
-	quotes chan model.WebsocketQuote
 }
