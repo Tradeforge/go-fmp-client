@@ -3,6 +3,7 @@ package market
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -16,11 +17,11 @@ const (
 	QuoteEndpoint = "wss://websockets.financialmodelingprep.com"
 )
 
-/*
-		Connect connects to the FMP websocket endpoint.
-
-	    NOTE: It is the responsibility of the caller to call Disconnect to close the connection when done.
-*/
+// Connect connects to the FMP websocket endpoint.
+//
+// NOTE: It is the responsibility of the caller to call Disconnect to close the connection when done.
+//
+//nolint:gocognit
 func (wss *WebsocketClient) Connect(endpoint string) (err error) {
 	wss.connectionLock.Lock()
 	defer wss.connectionLock.Unlock()
@@ -65,52 +66,6 @@ func (wss *WebsocketClient) Connect(endpoint string) (err error) {
 	})
 	if err != nil {
 		return fmt.Errorf("dialing websocket connection: %w", err)
-	}
-	return nil
-}
-
-func (wss *WebsocketClient) maintainConnection(ctx context.Context) error {
-L:
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			var rawMessage json.RawMessage
-			if err := wss.connection.ReadJSON(&rawMessage); err != nil {
-				return fmt.Errorf("reading websocket message: %w", err)
-			}
-			msg := model.WebsocketMesssage{}
-			if err := json.Unmarshal(rawMessage, &msg); err != nil {
-				return fmt.Errorf("unmarshaling websocket message: %w", err)
-			}
-
-			switch msg.Event {
-			case model.WebsocketEventNameHeartbeat:
-				wss.logger.Debug("received heartbeat")
-				continue
-			case model.WebsocketEventNameLogin:
-				wss.events <- msg
-				wss.logger.Debug("authenticated", slog.Any("message", msg))
-				continue
-			case model.WebsocketEventNameSubscribe:
-				wss.events <- msg
-				wss.logger.Debug("subscribed", slog.Any("message", msg))
-				continue
-			case model.WebsocketEventNameUnsubscribe:
-				wss.events <- msg
-				wss.logger.Debug("unsubscribed", slog.Any("message", msg))
-				break L
-			default:
-				wss.logger.Debug("received message", slog.Any("raw", rawMessage))
-				if msg.Type == nil {
-					return fmt.Errorf("unknown message type: nil")
-				}
-				if err := wss.processRawMessage(*msg.Type, rawMessage); err != nil {
-					return fmt.Errorf("processing message: %w", err)
-				}
-			}
-		}
 	}
 	return nil
 }
@@ -162,6 +117,70 @@ L:
 	return nil
 }
 
+func (wss *WebsocketClient) Unsubscribe(symbols []string) error {
+	wss.subscribeQuotesLock.Lock()
+	defer wss.subscribeQuotesLock.Unlock()
+	msg := model.WebsocketSubscriptionRequest{
+		Event: model.WebsocketEventNameUnsubscribe,
+		Data:  model.WebsocketSubscriptionRequestData{Symbols: symbols},
+	}
+	if err := wss.connection.WriteJSON(msg); err != nil {
+		return fmt.Errorf("writing unsubscription message: %w", err)
+	}
+	return nil
+}
+
+func (wss *WebsocketClient) Quotes() <-chan model.WebsocketQuote {
+	return wss.quotes
+}
+
+//nolint:gocognit
+func (wss *WebsocketClient) maintainConnection(ctx context.Context) error {
+L:
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			var rawMessage json.RawMessage
+			if err := wss.connection.ReadJSON(&rawMessage); err != nil {
+				return fmt.Errorf("reading websocket message: %w", err)
+			}
+			msg := model.WebsocketMesssage{}
+			if err := json.Unmarshal(rawMessage, &msg); err != nil {
+				return fmt.Errorf("unmarshaling websocket message: %w", err)
+			}
+
+			switch msg.Event {
+			case model.WebsocketEventNameHeartbeat:
+				wss.logger.Debug("received heartbeat")
+				continue
+			case model.WebsocketEventNameLogin:
+				wss.events <- msg
+				wss.logger.Debug("authenticated", slog.Any("message", msg))
+				continue
+			case model.WebsocketEventNameSubscribe:
+				wss.events <- msg
+				wss.logger.Debug("subscribed", slog.Any("message", msg))
+				continue
+			case model.WebsocketEventNameUnsubscribe:
+				wss.events <- msg
+				wss.logger.Debug("unsubscribed", slog.Any("message", msg))
+				break L
+			default:
+				wss.logger.Debug("received message", slog.Any("raw", rawMessage))
+				if msg.Type == nil {
+					return errors.New("unknown message type: nil")
+				}
+				if err := wss.processRawMessage(*msg.Type, rawMessage); err != nil {
+					return fmt.Errorf("processing message: %w", err)
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (wss *WebsocketClient) processRawMessage(typ model.WebsocketMessageType, msg json.RawMessage) error {
 	switch typ {
 	case model.WebsocketMessageTypeQuote:
@@ -181,21 +200,4 @@ func (wss *WebsocketClient) processQuote(msg json.RawMessage) error {
 	}
 	wss.quotes <- quote
 	return nil
-}
-
-func (wss *WebsocketClient) Unsubscribe(symbols []string) error {
-	wss.subscribeQuotesLock.Lock()
-	defer wss.subscribeQuotesLock.Unlock()
-	msg := model.WebsocketSubscriptionRequest{
-		Event: model.WebsocketEventNameUnsubscribe,
-		Data:  model.WebsocketSubscriptionRequestData{Symbols: symbols},
-	}
-	if err := wss.connection.WriteJSON(msg); err != nil {
-		return fmt.Errorf("writing unsubscription message: %w", err)
-	}
-	return nil
-}
-
-func (wss *WebsocketClient) Quotes() <-chan model.WebsocketQuote {
-	return wss.quotes
 }

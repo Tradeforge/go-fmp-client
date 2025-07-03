@@ -9,9 +9,9 @@ import (
 type Date string
 
 var (
-	errInvalidDateFormat     = fmt.Errorf("invalid date format")
-	errInvalidDateTimeFormat = fmt.Errorf("invalid date time format")
-	errInvalidTimeFormat     = fmt.Errorf("invalid time format")
+	errInvalidDateFormat     = errors.New("invalid date format")
+	errInvalidDateTimeFormat = errors.New("invalid date time format")
+	errInvalidTimeFormat     = errors.New("invalid time format")
 )
 
 func DateFromTime(t time.Time) Date {
@@ -113,6 +113,7 @@ func (o *TimeHHMM) MarshalText() ([]byte, error) {
 }
 
 func (o *TimeHHMM) UnmarshalText(data []byte) error {
+	//nolint:perfsprint
 	t, err := time.Parse(time.TimeOnly, fmt.Sprintf("%s:00", string(data)))
 	if err != nil {
 		panic(errors.Join(errInvalidTimeFormat, err))

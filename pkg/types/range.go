@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"slices"
@@ -73,10 +74,10 @@ func parseRangeCaptureGroups(r *regexp.Regexp, str string) (decimal.Decimal, dec
 	rMin, rMax := decimal.Zero, decimal.Zero
 	matches := r.FindStringSubmatch(str)
 	if len(matches) == 0 {
-		return rMin, rMax, fmt.Errorf("no matches found")
+		return rMin, rMax, errors.New("no matches found")
 	}
 	if !slices.Contains(r.SubexpNames(), "min") || !slices.Contains(r.SubexpNames(), "max") {
-		return rMin, rMax, fmt.Errorf("missing submatch names")
+		return rMin, rMax, errors.New("missing submatch names")
 	}
 	rMin, err := decimal.NewFromString(matches[r.SubexpIndex("min")])
 	if err != nil {

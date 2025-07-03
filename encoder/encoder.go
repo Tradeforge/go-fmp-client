@@ -71,6 +71,7 @@ func (e *Encoder) encodePath(uri string, params any) (string, error) {
 	}
 
 	for k, v := range pathParams {
+		//nolint:perfsprint
 		uri = strings.ReplaceAll(uri, fmt.Sprintf(":%s", k), url.PathEscape(v))
 	}
 
