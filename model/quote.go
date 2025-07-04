@@ -6,16 +6,6 @@ import (
 	"go.tradeforge.dev/fmp/pkg/types"
 )
 
-type TickerQuote struct {
-	Symbol      string          `json:"symbol"`
-	BidPrice    decimal.Decimal `json:"bidPrice"`
-	AskPrice    decimal.Decimal `json:"askPrice"`
-	BidSize     decimal.Decimal `json:"bidSize"`
-	AskSize     decimal.Decimal `json:"askSize"`
-	Volume      decimal.Decimal `json:"volume"`
-	LastUpdated int64           `json:"lastUpdated"`
-}
-
 type GetHistoricalBarsParams struct {
 	Timeframe Timeframe  `path:"timeframe,required"`
 	Symbol    string     `query:"symbol,required"`
@@ -80,7 +70,7 @@ type TickerPrice struct {
 	Open             decimal.Decimal `json:"open"`
 	Price            decimal.Decimal `json:"price"`
 	PreviousClose    decimal.Decimal `json:"previousClose"`
-	ChangePercentage decimal.Decimal `json:"changesPercentage"`
+	ChangePercentage decimal.Decimal `json:"changePercentage"`
 	Change           decimal.Decimal `json:"change"`
 	DayLow           decimal.Decimal `json:"dayLow"`
 	DayHigh          decimal.Decimal `json:"dayHigh"`
@@ -89,8 +79,6 @@ type TickerPrice struct {
 	PriceAvg50       decimal.Decimal `json:"priceAvg50"`
 	PriceAvg200      decimal.Decimal `json:"priceAvg200"`
 	MarketCap        decimal.Decimal `json:"marketCap"`
-	PE               decimal.Decimal `json:"pe"`
-	EPS              decimal.Decimal `json:"eps"`
 	Exchange         string          `json:"exchange"`
 	Volume           decimal.Decimal `json:"volume"`
 	Timestamp        int64           `json:"timestamp"`

@@ -20,8 +20,8 @@ const (
 	GetCompanyProfilesPath    = "/api/v3/profile/:symbols" // Stable API does not support multiple symbols, so we use the v3 API.
 	BulkGetCompanyProfilePath = "/stable/profile-bulk"
 
-	GetTickerKeyMetricsPath = "/stable/key-metrics"
-	GetTickerRatiosPath     = "/stable/ratios"
+	GetFinancialKeyMetricsTTMPath = "/stable/key-metrics-ttm"
+	GetFinancialRatiosTTMPath     = "/stable/ratios-ttm"
 
 	GetSP500IndexConstituentsPath    = "/stable/sp500-constituent"
 	GetNasdaqIndexConstituentsPath   = "/stable/nasdaq-constituent"
@@ -97,16 +97,16 @@ func (tc *TickerClient) BulkGetCompanyProfile(ctx context.Context, params *model
 	return res, err
 }
 
-func (tc *TickerClient) GetTickerKeyMetrics(ctx context.Context, params *model.GetStockKeyMetricsParams, opts ...model.RequestOption) (model.GetTickerKeyMetricsResponse, error) {
-	var res model.GetTickerKeyMetricsResponse
-	_, err := tc.Call(ctx, http.MethodGet, GetTickerKeyMetricsPath, params, &res, opts...)
-	return res, err
+func (tc *TickerClient) GetFinancialKeyMetricsTTM(ctx context.Context, params *model.GetFinancialKeyMetricsTTMParams, opts ...model.RequestOption) (model.GetFinancialKeyMetricsTTMResponse, error) {
+	var res []model.GetFinancialKeyMetricsTTMResponse
+	_, err := tc.Call(ctx, http.MethodGet, GetFinancialKeyMetricsTTMPath, params, &res, opts...)
+	return res[0], err
 }
 
-func (tc *TickerClient) GetTickerRatios(ctx context.Context, params *model.GetStockRatiosParams, opts ...model.RequestOption) (model.GetTickerRatiosResponse, error) {
-	var res model.GetTickerRatiosResponse
-	_, err := tc.Call(ctx, http.MethodGet, GetTickerRatiosPath, params, &res, opts...)
-	return res, err
+func (tc *TickerClient) GetFinancialRatiosTTM(ctx context.Context, params *model.GetFinancialRatiosTTMParams, opts ...model.RequestOption) (model.GetFinancialRatiosTTMResponse, error) {
+	var res []model.GetFinancialRatiosTTMResponse
+	_, err := tc.Call(ctx, http.MethodGet, GetFinancialRatiosTTMPath, params, &res, opts...)
+	return res[0], err
 }
 
 func (tc *TickerClient) GetGainers(ctx context.Context, opts ...model.RequestOption) (model.GetGainersResponse, error) {
