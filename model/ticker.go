@@ -300,3 +300,33 @@ type IndexConstituent struct {
     Sector         string  `json:"sector"`
     DateFirstAdded *string `json:"dateFirstAdded"`
 }
+
+type GetAvailableExchangesResponse = []Exchange
+
+type Exchange struct {
+    Exchange     string  `json:"exchange" validate:"required"`
+    Name         string  `json:"name" validate:"required"`
+    SymbolSuffix string  `json:"symbolSuffix"`
+    CountryName  *string `json:"countryName"`
+    CountryCode  *string `json:"countryCode"`
+    Delay        *string `json:"delay"`
+}
+
+func (e *Exchange) UnmarshalJSON(b []byte) error {
+    type Alias Exchange
+    var a Alias
+    if err := json.Unmarshal(b, &a); err != nil {
+        return fmt.Errorf("unmarshalling exchange: %w", err)
+    }
+    if a.CountryName != nil && *a.CountryName == "" {
+        a.CountryName = nil
+    }
+    if a.CountryCode != nil && *a.CountryCode == "" {
+        a.CountryCode = nil
+    }
+    if a.SymbolSuffix == "N/A" {
+        a.SymbolSuffix = ""
+    }
+    *e = Exchange(a)
+    return nil
+}
