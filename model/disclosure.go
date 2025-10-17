@@ -69,7 +69,9 @@ func (r *FinancialDisclosureRangeAmount) UnmarshalJSON(data []byte) error {
     if err := json.Unmarshal(data, &s); err != nil {
         return err
     }
-    r.Range = strings.Replace(s, " ", "", -1) // Remove spaces
+    r.Range = strings.Replace(s, " ", "", -1)       // Remove spaces
+    r.Range = strings.Replace(r.Range, "$", "", -1) // Remove dollar signs, assume all amounts are in USD
+    r.Range = strings.Replace(r.Range, ",", "", -1) // Remove commas (thousands separator)
 
     parts := []rune(s)
     sepIndex := -1
