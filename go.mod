@@ -6,7 +6,7 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/go-playground/validator/v10 v10.23.0
-	github.com/go-resty/resty/v2 v2.11.0
+	github.com/go-resty/resty/v2 v2.13.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/shopspring/decimal v1.4.0
