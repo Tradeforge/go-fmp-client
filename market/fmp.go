@@ -25,6 +25,7 @@ type HTTPClient struct {
 	TickerClient
 	NewsClient
 	EventClient
+	DisclosureClient
 }
 
 // NewHTTPClient returns a new HTTP client with the specified API key and config.
@@ -51,6 +52,9 @@ func NewHTTPClient(
 			Client: c,
 		},
 		EventClient: EventClient{
+			Client: c,
+		},
+		DisclosureClient: DisclosureClient{
 			Client: c,
 		},
 	}
