@@ -116,3 +116,20 @@ type HistoricalMarketCap struct {
 	Date   types.Date      `json:"date"`
 	Value  decimal.Decimal `json:"marketCap"`
 }
+
+type GetBulkPriceEODParams struct {
+	Date types.Date `query:"date,required"`
+}
+
+type GetBulkPriceEODResponse = []BulkPriceEOD
+
+type BulkPriceEOD struct {
+	Symbol   string          `json:"symbol"`
+	Date     types.Date      `json:"date"`
+	Open     decimal.Decimal `json:"open"`
+	Low      decimal.Decimal `json:"low"`
+	High     decimal.Decimal `json:"high"`
+	Close    decimal.Decimal `json:"close"`
+	AdjClose decimal.Decimal `json:"adjClose"`
+	Volume   decimal.Decimal `json:"volume"`
+}

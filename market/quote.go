@@ -19,6 +19,8 @@ const (
 	GetHistoricalBarsPath      = "/stable/historical-chart/:timeframe"
 	GetHistoricalPricesEODPath = "/stable/historical-price-eod/full"
 	GetHistoricalMarketCapPath = "/stable/historical-market-capitalization"
+
+	GetBulkPriceEODPath = "/stable/eod-bulk"
 )
 
 type QuoteClient struct {
@@ -78,5 +80,11 @@ func (tc *TickerClient) GetHistoricalPricesEOD(ctx context.Context, params *mode
 func (tc *TickerClient) GetHistoricalMarketCap(ctx context.Context, params *model.GetHistoricalMarketCapParams, opts ...model.RequestOption) (model.GetHistoricalMarketCapResponse, error) {
 	var res model.GetHistoricalMarketCapResponse
 	_, err := tc.Call(ctx, http.MethodGet, GetHistoricalMarketCapPath, params, &res, opts...)
+	return res, err
+}
+
+func (tc *TickerClient) GetBulkPriceEOD(ctx context.Context, params *model.GetBulkPriceEODParams, opts ...model.RequestOption) (model.GetBulkPriceEODResponse, error) {
+	var res model.GetBulkPriceEODResponse
+	_, err := tc.Call(ctx, http.MethodGet, GetBulkPriceEODPath, params, &res, opts...)
 	return res, err
 }
