@@ -44,9 +44,19 @@ type FinancialDisclosure struct {
 type FinancialDisclosureType string
 
 const (
-	FinancialDisclosureTypePurchase FinancialDisclosureType = "Purchase"
-	FinancialDisclosureTypeSale     FinancialDisclosureType = "Sale"
+	FinancialDisclosureTypePurchase    FinancialDisclosureType = "Purchase"
+	FinancialDisclosureTypeSale        FinancialDisclosureType = "Sale"
+	FinancialDisclosureTypeFullSale    FinancialDisclosureType = "Sale (Full)"
+	FinancialDisclosureTypePartialSale FinancialDisclosureType = "Sale (Partial)"
 )
+
+func (fdt FinancialDisclosureType) IsValid() bool {
+	switch fdt {
+	case FinancialDisclosureTypePurchase, FinancialDisclosureTypeSale, FinancialDisclosureTypeFullSale, FinancialDisclosureTypePartialSale:
+		return true
+	}
+	return false
+}
 
 type FinancialDisclosureRangeAmount struct {
 	Range string
@@ -75,6 +85,17 @@ func (r *FinancialDisclosureRangeAmount) UnmarshalJSON(data []byte) error {
 	r.Range = strings.Replace(r.Range, ",", "", -1) // Remove commas (thousands separator)
 
 	parts := strings.Split(r.Range, "-")
+	if len(parts) == 1 {
+		// Handle single value case
+		valStr := string(parts[0])
+		valDec, err := decimal.NewFromString(valStr)
+		if err != nil {
+			return err
+		}
+		r.Min = valDec
+		r.Max = valDec
+		return nil
+	}
 	if len(parts) != 2 {
 		return fmt.Errorf("invalid FinancialDisclosureRangeAmount range: %s", r.Range)
 	}
