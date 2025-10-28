@@ -139,7 +139,7 @@ type GetFinancialKeyMetricsTTMParams struct {
 	Symbol string `query:"symbol,required"`
 }
 
-type GetFinancialKeyMetricsTTMResponse = FinancialKeyMetricsTTM
+type GetFinancialKeyMetricsTTMResponse = *FinancialKeyMetricsTTM
 
 type FinancialKeyMetricsTTM = FinancialKeyMetrics
 
@@ -193,7 +193,7 @@ type GetFinancialRatiosTTMParams struct {
 	Symbol string `query:"symbol,required"`
 }
 
-type GetFinancialRatiosTTMResponse = FinancialRatiosTTM
+type GetFinancialRatiosTTMResponse = *FinancialRatiosTTM
 
 type FinancialRatiosTTM struct {
 	Symbol string `json:"symbol"`

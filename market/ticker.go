@@ -102,12 +102,18 @@ func (tc *TickerClient) BulkGetCompanyProfile(ctx context.Context, params *model
 func (tc *TickerClient) GetFinancialKeyMetricsTTM(ctx context.Context, params *model.GetFinancialKeyMetricsTTMParams, opts ...model.RequestOption) (model.GetFinancialKeyMetricsTTMResponse, error) {
 	var res []model.GetFinancialKeyMetricsTTMResponse
 	_, err := tc.Call(ctx, http.MethodGet, GetFinancialKeyMetricsTTMPath, params, &res, opts...)
+	if len(res) == 0 {
+		return nil, err
+	}
 	return res[0], err
 }
 
 func (tc *TickerClient) GetFinancialRatiosTTM(ctx context.Context, params *model.GetFinancialRatiosTTMParams, opts ...model.RequestOption) (model.GetFinancialRatiosTTMResponse, error) {
 	var res []model.GetFinancialRatiosTTMResponse
 	_, err := tc.Call(ctx, http.MethodGet, GetFinancialRatiosTTMPath, params, &res, opts...)
+	if len(res) == 0 {
+		return nil, err
+	}
 	return res[0], err
 }
 
