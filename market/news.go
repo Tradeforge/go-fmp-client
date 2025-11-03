@@ -1,30 +1,58 @@
 package market
 
 import (
-	"context"
-	"net/http"
+    "context"
+    "net/http"
 
-	"go.tradeforge.dev/fmp/client/rest"
-	"go.tradeforge.dev/fmp/model"
+    "go.tradeforge.dev/fmp/client/rest"
+    "go.tradeforge.dev/fmp/model"
 )
 
 const (
-	GetStockNewsPath   = "/api/v3/stock_news"
-	GetNewsRSSFeedPath = "/api/v4/stock-news-sentiments-rss-feed"
+    GetFMPArticlesPath   = "/api/stable/fmp-articles"
+    GetGeneralNewsPath   = "/api/stable/news/general-latest"
+    GetPressReleasesPath = "/api/stable/news/press-releases-latest"
+    GetStockNewsPath     = "/api/stable/news/stock-latest"
+    GetCryptoNewsPath    = "/api/stable/news/crypto-latest"
+    GetForexNewsPath     = "/api/stable/news/forex-latest"
 )
 
 type NewsClient struct {
-	*rest.Client
+    *rest.Client
 }
 
-func (nc *NewsClient) GetStockNews(ctx context.Context, params model.GetStockNewsParams, opts ...model.RequestOption) (model.GetStockNewsResponse, error) {
-	var res model.GetStockNewsResponse
-	_, err := nc.Call(ctx, http.MethodGet, GetStockNewsPath, params, &res, opts...)
-	return res, err
+func (nc *NewsClient) GetFMPArticles(ctx context.Context, params model.GetFMPArticlesParams, opts ...model.RequestOption) (model.GetFMPArticlesResponse, error) {
+    var res model.GetFMPArticlesResponse
+    _, err := nc.Call(ctx, http.MethodGet, GetFMPArticlesPath, params, &res, opts...)
+    return res, err
 }
 
-func (nc *NewsClient) GetNewsRSSFeed(ctx context.Context, params model.GetNewsRSSFeedParams, opts ...model.RequestOption) (model.GetNewsRSSFeedResponse, error) {
-	var res model.GetNewsRSSFeedResponse
-	_, err := nc.Call(ctx, http.MethodGet, GetNewsRSSFeedPath, params, &res, opts...)
-	return res, err
+func (nc *NewsClient) GetGeneralNews(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
+    var res model.GetNewsResponse
+    _, err := nc.Call(ctx, http.MethodGet, GetGeneralNewsPath, params, &res, opts...)
+    return res, err
+}
+
+func (nc *NewsClient) GetPressReleases(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
+    var res model.GetNewsResponse
+    _, err := nc.Call(ctx, http.MethodGet, GetPressReleasesPath, params, &res, opts...)
+    return res, err
+}
+
+func (nc *NewsClient) GetStockNews(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
+    var res model.GetNewsResponse
+    _, err := nc.Call(ctx, http.MethodGet, GetStockNewsPath, params, &res, opts...)
+    return res, err
+}
+
+func (nc *NewsClient) GetCryptoNews(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
+    var res model.GetNewsResponse
+    _, err := nc.Call(ctx, http.MethodGet, GetCryptoNewsPath, params, &res, opts...)
+    return res, err
+}
+
+func (nc *NewsClient) GetForexNews(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
+    var res model.GetNewsResponse
+    _, err := nc.Call(ctx, http.MethodGet, GetForexNewsPath, params, &res, opts...)
+    return res, err
 }
