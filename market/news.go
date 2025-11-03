@@ -9,12 +9,12 @@ import (
 )
 
 const (
-    GetFMPArticlesPath   = "/api/stable/fmp-articles"
-    GetGeneralNewsPath   = "/api/stable/news/general-latest"
-    GetPressReleasesPath = "/api/stable/news/press-releases-latest"
-    GetStockNewsPath     = "/api/stable/news/stock-latest"
-    GetCryptoNewsPath    = "/api/stable/news/crypto-latest"
-    GetForexNewsPath     = "/api/stable/news/forex-latest"
+    GetFMPArticlesPath   = "/stable/fmp-articles"
+    GetGeneralNewsPath   = "/stable/news/general-latest"
+    GetPressReleasesPath = "/stable/news/press-releases-latest"
+    GetStockNewsPath     = "/stable/news/stock-latest"
+    GetCryptoNewsPath    = "/stable/news/crypto-latest"
+    GetForexNewsPath     = "/stable/news/forex-latest"
 )
 
 type NewsClient struct {
