@@ -9,15 +9,15 @@ import (
 )
 
 const (
-    GetFMPArticlesPath      = "/stable/fmp-articles"
-    GetGeneralNewsPath      = "/stable/news/general-latest"
-    GetPressReleasesPath    = "/stable/news/press-releases-latest"
-    GetLatestStockNewsPath  = "/stable/news/stock-latest"
-    GetStockNewsPath        = "/stable/news/stock"
-    GetLatestCryptoNewsPath = "/stable/news/crypto-latest"
-    GetCryptoNewsPath       = "/stable/news/crypto"
-    GetLatestForexNewsPath  = "/stable/news/forex-latest"
-    GetForexNewsPath        = "/stable/news/forex"
+    GetFMPArticlesPath       = "/stable/fmp-articles"
+    GetLatestGeneralNewsPath = "/stable/news/general-latest"
+    GetPressReleasesPath     = "/stable/news/press-releases-latest"
+    GetLatestStockNewsPath   = "/stable/news/stock-latest"
+    GetStockNewsPath         = "/stable/news/stock"
+    GetLatestCryptoNewsPath  = "/stable/news/crypto-latest"
+    GetCryptoNewsPath        = "/stable/news/crypto"
+    GetLatestForexNewsPath   = "/stable/news/forex-latest"
+    GetForexNewsPath         = "/stable/news/forex"
 )
 
 type NewsClient struct {
@@ -30,15 +30,15 @@ func (nc *NewsClient) GetFMPArticles(ctx context.Context, params model.GetFMPArt
     return res, err
 }
 
-func (nc *NewsClient) GetGeneralNews(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
-    var res model.GetNewsResponse
-    _, err := nc.Call(ctx, http.MethodGet, GetGeneralNewsPath, params, &res, opts...)
-    return res, err
-}
-
 func (nc *NewsClient) GetPressReleases(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
     var res model.GetNewsResponse
     _, err := nc.Call(ctx, http.MethodGet, GetPressReleasesPath, params, &res, opts...)
+    return res, err
+}
+
+func (nc *NewsClient) GetLatestGeneralNews(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (model.GetNewsResponse, error) {
+    var res model.GetNewsResponse
+    _, err := nc.Call(ctx, http.MethodGet, GetLatestGeneralNewsPath, params, &res, opts...)
     return res, err
 }
 
