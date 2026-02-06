@@ -17,7 +17,6 @@ const (
 	GetLosersPath            = "/stable/biggest-losers"
 
 	GetCompanyProfilePath     = "/stable/profile"
-	GetCompanyProfilesPath    = "/api/v3/profile/:symbols" // Stable API does not support multiple symbols, so we use the v3 API.
 	BulkGetCompanyProfilePath = "/stable/profile-bulk"
 
 	GetFinancialKeyMetricsTTMPath = "/stable/key-metrics-ttm"
@@ -53,12 +52,6 @@ func (tc *TickerClient) GetCompanyProfile(ctx context.Context, params *model.Get
 		}, nil
 	}
 	return &res[0], nil
-}
-
-func (tc *TickerClient) GetCompanyProfiles(ctx context.Context, params *model.GetCompanyProfilesParams, opts ...model.RequestOption) ([]model.GetCompanyProfileResponse, error) {
-	var res []model.GetCompanyProfileResponse
-	_, err := tc.Call(ctx, http.MethodGet, GetCompanyProfilesPath, params, &res, opts...)
-	return res, err
 }
 
 func (tc *TickerClient) BulkGetCompanyProfile(ctx context.Context, params *model.BulkGetCompanyProfilesParams, opts ...model.RequestOption) ([]model.BulkCompanyProfileResponse, error) {

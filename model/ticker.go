@@ -41,6 +41,8 @@ func (i *IgnoreUnmarshalFailure[T]) UnmarshalJSON(b []byte) error {
 
 type GetCompanyProfileResponse struct {
 	Symbol            string           `json:"symbol"`
+	Exchange          string           `json:"exchange"`
+	ExchangeFullName  string           `json:"exchangeFullName"`
 	Price             *decimal.Decimal `json:"price,omitempty"`
 	Beta              *decimal.Decimal `json:"beta,omitempty"`
 	MarketCap         *decimal.Decimal `json:"marketCap,omitempty"`
@@ -53,8 +55,6 @@ type GetCompanyProfileResponse struct {
 	Cik               *string          `json:"cik,omitempty"`
 	Isin              *string          `json:"isin,omitempty"`
 	Cusip             *string          `json:"cusip,omitempty"`
-	ExchangeFullName  string           `json:"exchangeFullName"`
-	ExchangeShortName string           `json:"exchangeShortName"`
 	Industry          *string          `json:"industry,omitempty"`
 	Website           *string          `json:"website,omitempty"`
 	Description       *string          `json:"description,omitempty"`
@@ -71,17 +71,19 @@ type GetCompanyProfileResponse struct {
 	Dcf               *decimal.Decimal `json:"dcf,omitempty"`
 	Image             *string          `json:"image,omitempty"`
 	IpoDate           *types.Date      `json:"ipoDate,omitempty"`
-	DefaultImage      types.Bool       `json:"defaultImage"`
-	IsEtf             types.Bool       `json:"isEtf"`
-	IsActivelyTrading types.Bool       `json:"isActivelyTrading"`
-	IsAdr             types.Bool       `json:"isAdr"`
-	IsFund            types.Bool       `json:"isFund"`
+	DefaultImage      bool             `json:"defaultImage"`
+	IsEtf             bool             `json:"isEtf"`
+	IsActivelyTrading bool             `json:"isActivelyTrading"`
+	IsAdr             bool             `json:"isAdr"`
+	IsFund            bool             `json:"isFund"`
 	Volume            *decimal.Decimal `json:"volume,omitempty"`
 	VolumeAverage     *decimal.Decimal `json:"averageVolume,omitempty"`
 }
 
 type BulkCompanyProfileResponse struct {
 	Symbol            string                                                                                 `json:"symbol"`
+    Exchange          string                                                                                 `json:"exchange,omitempty"`
+    ExchangeFullName  string                                                                                 `json:"exchangeFullName,omitempty"`
 	Price             types.EmptyOr[decimal.Decimal]                                                         `json:"price,omitempty"`
 	MktCap            types.EmptyOr[decimal.Decimal]                                                         `json:"marketCap,omitempty"`
 	Beta              types.EmptyOr[decimal.Decimal]                                                         `json:"beta,omitempty"`
@@ -96,8 +98,6 @@ type BulkCompanyProfileResponse struct {
 	Cik               types.EmptyOr[string]                                                                  `json:"cik,omitempty"`
 	Isin              types.EmptyOr[string]                                                                  `json:"isin,omitempty"`
 	Cusip             types.EmptyOr[string]                                                                  `json:"cusip,omitempty"`
-	ExchangeFullName  string                                                                                 `json:"exchangeFullName,omitempty"`
-	ExchangeShortName string                                                                                 `json:"exchange,omitempty"`
 	Industry          types.EmptyOr[string]                                                                  `json:"industry,omitempty"`
 	Website           types.EmptyOr[string]                                                                  `json:"website,omitempty"`
 	Description       types.EmptyOr[string]                                                                  `json:"description,omitempty"`
