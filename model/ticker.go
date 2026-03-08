@@ -82,8 +82,8 @@ type GetCompanyProfileResponse struct {
 
 type BulkCompanyProfileResponse struct {
 	Symbol            string                                                                                 `json:"symbol"`
-    Exchange          string                                                                                 `json:"exchange,omitempty"`
-    ExchangeFullName  string                                                                                 `json:"exchangeFullName,omitempty"`
+	Exchange          string                                                                                 `json:"exchange,omitempty"`
+	ExchangeFullName  string                                                                                 `json:"exchangeFullName,omitempty"`
 	Price             types.EmptyOr[decimal.Decimal]                                                         `json:"price,omitempty"`
 	MktCap            types.EmptyOr[decimal.Decimal]                                                         `json:"marketCap,omitempty"`
 	Beta              types.EmptyOr[decimal.Decimal]                                                         `json:"beta,omitempty"`

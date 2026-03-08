@@ -96,7 +96,8 @@ func (r *FinancialDisclosureRangeAmount) UnmarshalJSON(data []byte) error {
 		r.Max = valDec
 		return nil
 	}
-	if len(parts) != 2 {
+	const expectedRangeParts = 2
+	if len(parts) != expectedRangeParts {
 		return fmt.Errorf("invalid FinancialDisclosureRangeAmount range: %s", r.Range)
 	}
 	minStr := parts[0]

@@ -137,6 +137,19 @@ linters:
       - legacy
       - std-error-handling
     rules:
+      # Package naming exceptions.
+      - path: errors/(.*)
+        linters:
+          - revive
+        text: "var-naming: avoid package names that conflict"
+      - path: pkg/types/(.*)
+        linters:
+          - revive
+        text: "var-naming: avoid meaningless package names"
+      - path: util/(.*)
+        linters:
+          - revive
+        text: "var-naming: avoid meaningless package names"
       # Dependency injection files.
       - path: cmd/(.*)
         linters:

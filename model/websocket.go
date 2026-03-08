@@ -55,7 +55,7 @@ type WebsocketAuthenticationRequest struct {
 }
 
 type WebsocketAuthenticationRequestData struct {
-	APIKey string `json:"apiKey" validate:"required"`
+	APIKey string `json:"apiKey" validate:"required"` //nolint:gosec // not a hardcoded credential
 }
 
 type WebsocketSubscriptionRequest struct {

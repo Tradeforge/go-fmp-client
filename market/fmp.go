@@ -15,7 +15,7 @@ import (
 )
 
 type HTTPClientConfig struct {
-	APIKey string `validate:"required" env:"FMP_API_KEY"`
+	APIKey string `json:"-" validate:"required" env:"FMP_API_KEY"` //nolint:gosec // not a hardcoded credential
 }
 
 // HTTPClient defines a client to the Polygon REST API.
@@ -65,7 +65,7 @@ func NewHTTPClient(
 }
 
 type WebsocketClientConfig struct {
-	APIKey string `validate:"required" env:"FMP_API_KEY"`
+	APIKey string `json:"-" validate:"required" env:"FMP_API_KEY"` //nolint:gosec // not a hardcoded credential
 }
 
 type WebsocketClient struct {
