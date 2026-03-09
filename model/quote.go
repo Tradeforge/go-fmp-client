@@ -49,22 +49,22 @@ type GetQuoteParams struct {
 	Symbol string `query:"symbol,required"`
 }
 
-type GetQuoteResponse = TickerPrice
+type GetQuoteResponse = TickerQuote
 
 type BatchGetQuoteParams struct {
 	Symbols string `query:"symbols,required"`
 }
 
-type BatchGetQuoteResponse = []TickerPrice
+type BatchGetQuoteResponse = []TickerShortQuote
 
 type BatchGetQuotesByExchangeParams struct {
 	Exchange string `query:"exchange,required"`
 	Short    bool   `query:"short"` // DO NOT USE: we always expect full prices to be returned.
 }
 
-type BatchGetQuotesByExchangeResponse = []TickerPrice
+type BatchGetQuotesByExchangeResponse = []TickerShortQuote
 
-type TickerPrice struct {
+type TickerQuote struct {
 	Symbol           string          `json:"symbol"`
 	Name             string          `json:"name"`
 	Open             decimal.Decimal `json:"open"`
@@ -82,6 +82,13 @@ type TickerPrice struct {
 	Exchange         string          `json:"exchange"`
 	Volume           decimal.Decimal `json:"volume"`
 	Timestamp        int64           `json:"timestamp"`
+}
+
+type TickerShortQuote struct {
+	Symbol string          `json:"symbol"`
+	Price  decimal.Decimal `json:"price"`
+	Change decimal.Decimal `json:"change"`
+	Volume decimal.Decimal `json:"volume"`
 }
 
 type GetPriceChangeParams struct {

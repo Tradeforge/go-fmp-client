@@ -48,7 +48,7 @@ func TestBatchGetQuotes(t *testing.T) {
 	symbols := map[string]bool{}
 	for _, q := range res {
 		symbols[q.Symbol] = true
-		assert.NotEmpty(t, q.Name)
+		assert.NotEmpty(t, q.Symbol)
 		assert.True(t, q.Price.IsPositive())
 	}
 	assert.True(t, symbols["AAPL"])
@@ -65,7 +65,6 @@ func TestBatchGetQuotesByExchange(t *testing.T) {
 
 	for _, q := range res[:5] {
 		assert.NotEmpty(t, q.Symbol)
-		assert.NotEmpty(t, q.Exchange)
 	}
 }
 
