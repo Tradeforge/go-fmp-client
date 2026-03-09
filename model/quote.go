@@ -55,7 +55,7 @@ type BatchGetQuoteParams struct {
 	Symbols string `query:"symbols,required"`
 }
 
-type BatchGetQuoteResponse = []TickerShortQuote
+type BatchGetQuoteResponse = []TickerQuote
 
 type BatchGetQuotesByExchangeParams struct {
 	Exchange string `query:"exchange,required"`
