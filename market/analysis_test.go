@@ -16,14 +16,14 @@ func TestGetAdvancedDCF(t *testing.T) {
 
 	res, err := client.GetAdvancedDCF(ctx, &model.GetAdvancedDCFParams{Symbol: "AAPL"})
 	require.NoError(t, err)
-	require.NotNil(t, res)
+	require.NotEmpty(t, res)
 
-	assert.Equal(t, "AAPL", res.Symbol)
-	assert.True(t, res.Revenue.IsPositive(), "revenue should be positive")
-	assert.True(t, res.EBITDA.IsPositive(), "EBITDA should be positive")
-	assert.True(t, res.Price.IsPositive(), "price should be positive")
-	assert.True(t, res.WACC.IsPositive(), "WACC should be positive")
-	assert.True(t, res.EnterpriseValue.IsPositive(), "enterprise value should be positive")
-	assert.True(t, res.EquityValuePerShare.IsPositive(), "equity value per share should be positive")
-	assert.True(t, res.DilutedSharesOutstanding.IsPositive(), "diluted shares should be positive")
+	assert.Equal(t, "AAPL", res[0].Symbol)
+	assert.True(t, res[0].Revenue.IsPositive(), "revenue should be positive")
+	assert.True(t, res[0].EBITDA.IsPositive(), "EBITDA should be positive")
+	assert.True(t, res[0].Price.IsPositive(), "price should be positive")
+	assert.True(t, res[0].WACC.IsPositive(), "WACC should be positive")
+	assert.True(t, res[0].EnterpriseValue.IsPositive(), "enterprise value should be positive")
+	assert.True(t, res[0].EquityValuePerShare.IsPositive(), "equity value per share should be positive")
+	assert.True(t, res[0].DilutedSharesOutstanding.IsPositive(), "diluted shares should be positive")
 }

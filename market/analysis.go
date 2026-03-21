@@ -17,14 +17,14 @@ type AnalysisClient struct {
 	*rest.Client
 }
 
-func (ac *AnalysisClient) GetAdvancedDCF(ctx context.Context, params *model.GetAdvancedDCFParams, opts ...model.RequestOption) (*model.GetAdvancedDCFResponse, error) {
+func (ac *AnalysisClient) GetAdvancedDCF(ctx context.Context, params *model.GetAdvancedDCFParams, opts ...model.RequestOption) ([]model.GetAdvancedDCFResponse, error) {
 	var res []model.GetAdvancedDCFResponse
 	_, err := ac.Call(ctx, http.MethodGet, GetAdvancedDCFPath, params, &res, opts...)
 	if err != nil {
 		return nil, err
 	}
-	if len(res) != 1 {
-		return nil, fmt.Errorf("expected response of length 1, got %d", len(res))
+	if len(res) == 0 {
+		return nil, fmt.Errorf("expected non-empty response, got 0 results")
 	}
-	return &res[0], nil
+	return res, nil
 }
