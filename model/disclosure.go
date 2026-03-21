@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/shopspring/decimal"
@@ -90,7 +89,7 @@ func (r *FinancialDisclosureRangeAmount) UnmarshalJSON(data []byte) error {
 		valStr := parts[0]
 		valDec, err := decimal.NewFromString(valStr)
 		if err != nil {
-			return err
+			return nil
 		}
 		r.Min = valDec
 		r.Max = valDec
@@ -98,17 +97,17 @@ func (r *FinancialDisclosureRangeAmount) UnmarshalJSON(data []byte) error {
 	}
 	const expectedRangeParts = 2
 	if len(parts) != expectedRangeParts {
-		return fmt.Errorf("invalid FinancialDisclosureRangeAmount range: %s", r.Range)
+		return nil
 	}
 	minStr := parts[0]
 	maxStr := parts[1]
 	minDec, err := decimal.NewFromString(minStr)
 	if err != nil {
-		return err
+		return nil
 	}
 	maxDec, err := decimal.NewFromString(maxStr)
 	if err != nil {
-		return err
+		return nil
 	}
 	r.Min = minDec
 	r.Max = maxDec
