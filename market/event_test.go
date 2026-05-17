@@ -40,8 +40,27 @@ func TestGetEarningsCalendar(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, res)
 
-	for _, e := range res[:5] {
+	for _, e := range res {
 		assert.NotEmpty(t, e.Symbol)
 		assert.NotEmpty(t, string(e.Date))
+	}
+}
+
+func TestGetDividendsCalendar(t *testing.T) {
+	client := newTestHTTPClient(t)
+	ctx := context.Background()
+
+	since := types.Date("2025-01-06")
+	until := types.Date("2025-01-10")
+	res, err := client.GetDividendsCalendar(ctx, &model.GetDividendsCalendarParams{
+		Since: &since,
+		Until: &until,
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, res)
+
+	for _, d := range res {
+		assert.NotEmpty(t, d.Symbol)
+		assert.NotEmpty(t, string(d.Date))
 	}
 }
