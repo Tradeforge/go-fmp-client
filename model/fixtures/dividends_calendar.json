@@ -1,0 +1,35 @@
+[
+  {
+    "symbol": "AAPL",
+    "date": "2025-02-10",
+    "recordDate": "2025-02-10",
+    "paymentDate": "2025-02-13",
+    "declarationDate": "2025-01-30",
+    "adjDividend": 0.25,
+    "dividend": 0.25,
+    "yield": 0.44,
+    "frequency": "Quarterly"
+  },
+  {
+    "symbol": "NEWCO",
+    "date": "2025-02-11",
+    "recordDate": "",
+    "paymentDate": "",
+    "declarationDate": "",
+    "adjDividend": 0.10,
+    "dividend": 0.10,
+    "yield": 1.2,
+    "frequency": ""
+  },
+  {
+    "symbol": "MSFT",
+    "date": "2025-02-20",
+    "recordDate": "2025-02-20",
+    "paymentDate": "2025-03-13",
+    "declarationDate": "2024-12-03",
+    "adjDividend": 0.83,
+    "dividend": 0.83,
+    "yield": 0.79,
+    "frequency": "Quarterly"
+  }
+]
