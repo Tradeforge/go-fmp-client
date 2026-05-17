@@ -2,7 +2,7 @@ package market
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 
 	"go.tradeforge.dev/fmp/client/rest"
@@ -24,7 +24,7 @@ func (ac *AnalysisClient) GetAdvancedDCF(ctx context.Context, params *model.GetA
 		return nil, err
 	}
 	if len(res) == 0 {
-		return nil, fmt.Errorf("expected non-empty response, got 0 results")
+		return nil, errors.New("expected non-empty response, got 0 results")
 	}
 	return res, nil
 }

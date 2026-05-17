@@ -89,7 +89,7 @@ func (r *FinancialDisclosureRangeAmount) UnmarshalJSON(data []byte) error {
 		valStr := parts[0]
 		valDec, err := decimal.NewFromString(valStr)
 		if err != nil {
-			return nil
+			return nil //nolint:nilerr // non-numeric amounts are tolerated, not unmarshalling errors
 		}
 		r.Min = valDec
 		r.Max = valDec
@@ -103,11 +103,11 @@ func (r *FinancialDisclosureRangeAmount) UnmarshalJSON(data []byte) error {
 	maxStr := parts[1]
 	minDec, err := decimal.NewFromString(minStr)
 	if err != nil {
-		return nil
+		return nil //nolint:nilerr // non-numeric amounts are tolerated, not unmarshalling errors
 	}
 	maxDec, err := decimal.NewFromString(maxStr)
 	if err != nil {
-		return nil
+		return nil //nolint:nilerr // non-numeric amounts are tolerated, not unmarshalling errors
 	}
 	r.Min = minDec
 	r.Max = maxDec
