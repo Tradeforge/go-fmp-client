@@ -1,0 +1,30 @@
+[
+  {
+    "symbol": "SFBS",
+    "date": "2026-08-21",
+    "numerator": 2,
+    "denominator": 1,
+    "splitType": "stock-split"
+  },
+  {
+    "symbol": "PDIYF",
+    "date": "2026-08-26",
+    "numerator": 1,
+    "denominator": 5,
+    "splitType": "stock-split"
+  },
+  {
+    "symbol": "5871.TW",
+    "date": "2026-07-29",
+    "numerator": 51,
+    "denominator": 50,
+    "splitType": "stock-dividend"
+  },
+  {
+    "symbol": "NOTYPE",
+    "date": "2026-08-30",
+    "numerator": 3,
+    "denominator": 2,
+    "splitType": ""
+  }
+]

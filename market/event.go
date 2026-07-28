@@ -11,6 +11,7 @@ import (
 const (
 	GetEarningsCalendarPath  = "/stable/earnings-calendar"
 	GetDividendsCalendarPath = "/stable/dividends-calendar"
+	GetSplitsCalendarPath    = "/stable/splits-calendar"
 	GetInsiderTradesPath     = "/stable/insider-trading/latest"
 )
 
@@ -33,5 +34,11 @@ func (ec *EventClient) GetEarningsCalendar(ctx context.Context, params *model.Ge
 func (ec *EventClient) GetDividendsCalendar(ctx context.Context, params *model.GetDividendsCalendarParams, opts ...model.RequestOption) ([]model.GetDividendsCalendarResponse, error) {
 	var res []model.GetDividendsCalendarResponse
 	_, err := ec.Call(ctx, http.MethodGet, GetDividendsCalendarPath, params, &res, opts...)
+	return res, err
+}
+
+func (ec *EventClient) GetSplitsCalendar(ctx context.Context, params *model.GetSplitsCalendarParams, opts ...model.RequestOption) ([]model.GetSplitsCalendarResponse, error) {
+	var res []model.GetSplitsCalendarResponse
+	_, err := ec.Call(ctx, http.MethodGet, GetSplitsCalendarPath, params, &res, opts...)
 	return res, err
 }
