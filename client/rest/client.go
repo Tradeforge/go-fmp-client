@@ -74,7 +74,16 @@ func (c *Client) Call(ctx context.Context, method, path string, params, response
 func (c *Client) CallURL(ctx context.Context, method, uri string, response any, opts ...model.RequestOption) (*resty.Response, error) {
 	options := mergeOptions(opts...)
 
-	c.HTTP.SetTimeout(DefaultClientTimeout)
+	// The timeout is set once in New(). Re-setting it here wrote to the SHARED
+	// resty client on every request, so any caller issuing concurrent requests
+	// through one client raced on it -- and every sub-client shares one
+	// *rest.Client, so that is the normal case rather than an exotic one.
+	// Detected by `go test -race` in a consumer whose two goroutines paginate
+	// the news endpoints concurrently.
+	//
+	// Nothing else in this module mutates the client timeout, so the call was
+	// redundant as well as unsafe. A genuine per-request deadline belongs on the
+	// request's context, which SetContext below already threads through.
 	req := c.HTTP.R().SetContext(ctx)
 	if options.Body != nil {
 		b, err := json.Marshal(options.Body)
