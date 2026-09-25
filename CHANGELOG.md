@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- The FMP API key is no longer written to logs or carried out inside returned errors (BE-475). Two independent paths leaked it. Resty's default logger printed the full authenticated request URL to stderr on every retry and on the final failure, which is how the live key reached CloudWatch. Separately, `CallURL` wrapped the transport `*url.Error` — which holds that same URL in an exported field — straight into the error it returns, so the key propagated into caller logs and Sentry even with the logger fixed. Both now pass through a redactor that replaces the credential with `REDACTED` while leaving the endpoint, the remaining query params and the error chain intact: `errors.Is`/`errors.As` still tell a cancellation from a timeout from a refused connection from a non-2xx status. Upstream response bodies and traced request/response headers are redacted on the same path.
+- **The API key must be rotated**, and only now that the redaction is in place — rotating first would put the fresh key straight back into the logs.
+
 ## [0.18.0] - 2026-07-27
 
 ### Added
