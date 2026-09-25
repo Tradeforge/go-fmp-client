@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (breaking)
+- `TickerQuote.Timestamp` is now `types.UnixTimestamp` instead of `int64`. FMP
+  started serialising the quote timestamp as a fractional number
+  (`1768692032.131`), which made every `TickerQuote` response fail to unmarshal.
+  The new type accepts both the integral and the fractional form and truncates
+  to whole seconds. Call sites that passed the field to `time.Unix(ts, 0)`
+  should call `ts.Time()`; call sites that need the raw epoch should call
+  `ts.Int64()`.
+
 ## [0.18.0] - 2026-07-27
 
 ### Added

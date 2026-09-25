@@ -1,8 +1,11 @@
 package types
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"strconv"
 	"time"
 )
 
@@ -12,6 +15,7 @@ var (
 	errInvalidDateFormat     = errors.New("invalid date format")
 	errInvalidDateTimeFormat = errors.New("invalid date time format")
 	errInvalidTimeFormat     = errors.New("invalid time format")
+	errInvalidUnixTimestamp  = errors.New("invalid unix timestamp")
 )
 
 func DateFromTime(t time.Time) Date {
@@ -179,4 +183,64 @@ func (d DateTime) String() string {
 		panic(fmt.Errorf("marshalling date time: %w", err))
 	}
 	return string(b)
+}
+
+// UnixTimestamp is a Unix epoch expressed in whole seconds.
+//
+// FMP serialises epoch fields as a bare JSON number. That number used to be
+// integral (1768692032) and is now sometimes fractional, carrying sub-second
+// precision (1768692032.131). Both forms decode here; the sub-second part is
+// dropped, because every consumer of these fields reads whole seconds.
+//
+// A JSON null leaves the zero value and a JSON string is rejected, both
+// matching the plain int64 this type replaced.
+type UnixTimestamp int64
+
+func UnixTimestampFromTime(t time.Time) UnixTimestamp {
+	return UnixTimestamp(t.Unix())
+}
+
+func (u UnixTimestamp) Time() time.Time {
+	return time.Unix(int64(u), 0)
+}
+
+func (u UnixTimestamp) Int64() int64 {
+	return int64(u)
+}
+
+func (u *UnixTimestamp) UnmarshalJSON(data []byte) error {
+	literal := string(data)
+	if literal == "null" {
+		return nil
+	}
+	if len(literal) > 0 && literal[0] == '"' {
+		return fmt.Errorf("%w: expected a number, got a string: %s", errInvalidUnixTimestamp, literal)
+	}
+
+	var number json.Number
+	if err := json.Unmarshal(data, &number); err != nil {
+		return fmt.Errorf("%w: %s: %w", errInvalidUnixTimestamp, literal, err)
+	}
+	// The integral form is both the common case and exact for every int64,
+	// so it never goes near a float64.
+	if seconds, err := number.Int64(); err == nil {
+		*u = UnixTimestamp(seconds)
+		return nil
+	}
+	seconds, err := number.Float64()
+	if err != nil {
+		return fmt.Errorf("%w: %s: %w", errInvalidUnixTimestamp, literal, err)
+	}
+	if math.IsNaN(seconds) || math.IsInf(seconds, 0) || math.Abs(seconds) >= math.MaxInt64 {
+		return fmt.Errorf("%w: out of range: %s", errInvalidUnixTimestamp, literal)
+	}
+	// Floor rather than truncate: the decoded value is the whole second the
+	// instant falls in on either side of the epoch, where truncating toward
+	// zero would push a pre-1970 fraction into the following second.
+	*u = UnixTimestamp(math.Floor(seconds))
+	return nil
+}
+
+func (u UnixTimestamp) String() string {
+	return strconv.FormatInt(int64(u), 10)
 }

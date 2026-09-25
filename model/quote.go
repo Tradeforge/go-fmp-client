@@ -65,23 +65,23 @@ type BatchGetQuotesByExchangeParams struct {
 type BatchGetQuotesByExchangeResponse = []TickerShortQuote
 
 type TickerQuote struct {
-	Symbol           string          `json:"symbol"`
-	Name             string          `json:"name"`
-	Open             decimal.Decimal `json:"open"`
-	Price            decimal.Decimal `json:"price"`
-	PreviousClose    decimal.Decimal `json:"previousClose"`
-	ChangePercentage decimal.Decimal `json:"changePercentage"`
-	Change           decimal.Decimal `json:"change"`
-	DayLow           decimal.Decimal `json:"dayLow"`
-	DayHigh          decimal.Decimal `json:"dayHigh"`
-	YearLow          decimal.Decimal `json:"yearLow"`
-	YearHigh         decimal.Decimal `json:"yearHigh"`
-	PriceAvg50       decimal.Decimal `json:"priceAvg50"`
-	PriceAvg200      decimal.Decimal `json:"priceAvg200"`
-	MarketCap        decimal.Decimal `json:"marketCap"`
-	Exchange         string          `json:"exchange"`
-	Volume           decimal.Decimal `json:"volume"`
-	Timestamp        int64           `json:"timestamp"`
+	Symbol           string              `json:"symbol"`
+	Name             string              `json:"name"`
+	Open             decimal.Decimal     `json:"open"`
+	Price            decimal.Decimal     `json:"price"`
+	PreviousClose    decimal.Decimal     `json:"previousClose"`
+	ChangePercentage decimal.Decimal     `json:"changePercentage"`
+	Change           decimal.Decimal     `json:"change"`
+	DayLow           decimal.Decimal     `json:"dayLow"`
+	DayHigh          decimal.Decimal     `json:"dayHigh"`
+	YearLow          decimal.Decimal     `json:"yearLow"`
+	YearHigh         decimal.Decimal     `json:"yearHigh"`
+	PriceAvg50       decimal.Decimal     `json:"priceAvg50"`
+	PriceAvg200      decimal.Decimal     `json:"priceAvg200"`
+	MarketCap        decimal.Decimal     `json:"marketCap"`
+	Exchange         string              `json:"exchange"`
+	Volume           decimal.Decimal     `json:"volume"`
+	Timestamp        types.UnixTimestamp `json:"timestamp"`
 }
 
 type TickerShortQuote struct {
