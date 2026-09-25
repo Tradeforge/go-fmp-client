@@ -26,6 +26,11 @@ func New(
 	apiKey string,
 	logger *slog.Logger,
 ) *Client {
+	if logger == nil {
+		logger = slog.Default()
+	}
+	red := redactor{apiKey: apiKey}
+
 	c := resty.New()
 
 	c.SetBaseURL(apiURL)
@@ -33,20 +38,27 @@ func New(
 	c.SetTimeout(DefaultClientTimeout)
 	c.SetHeader("User-Agent", fmt.Sprintf("Tradeforge client/%v", clientVersion))
 	c.SetHeader("Accept", "application/json")
-	c.SetQueryParam("apikey", apiKey)
+	c.SetQueryParam(apiKeyQueryParam, apiKey)
+	// Resty's default logger prints the full request URL, credential included,
+	// to stderr on every retry and on the final failure. Replace it here,
+	// before any request is built: Client.R() copies the logger into each
+	// request, so a later swap would not reach requests already created.
+	c.SetLogger(&restyLogger{logger: logger, redactor: red})
 
 	return &Client{
-		HTTP:    c,
-		encoder: encoder.New(),
-		logger:  logger,
+		HTTP:     c,
+		encoder:  encoder.New(),
+		logger:   logger,
+		redactor: red,
 	}
 }
 
 // Client defines an HTTP client for the Polygon REST API.
 type Client struct {
-	HTTP    *resty.Client
-	encoder *encoder.Encoder
-	logger  *slog.Logger
+	HTTP     *resty.Client
+	encoder  *encoder.Encoder
+	logger   *slog.Logger
+	redactor redactor
 }
 
 // Call makes an API call based on the request params and options. The response is automatically unmarshaled.
@@ -62,7 +74,16 @@ func (c *Client) Call(ctx context.Context, method, path string, params, response
 func (c *Client) CallURL(ctx context.Context, method, uri string, response any, opts ...model.RequestOption) (*resty.Response, error) {
 	options := mergeOptions(opts...)
 
-	c.HTTP.SetTimeout(DefaultClientTimeout)
+	// The timeout is set once in New(). Re-setting it here wrote to the SHARED
+	// resty client on every request, so any caller issuing concurrent requests
+	// through one client raced on it -- and every sub-client shares one
+	// *rest.Client, so that is the normal case rather than an exotic one.
+	// Detected by `go test -race` in a consumer whose two goroutines paginate
+	// the news endpoints concurrently.
+	//
+	// Nothing else in this module mutates the client timeout, so the call was
+	// redundant as well as unsafe. A genuine per-request deadline belongs on the
+	// request's context, which SetContext below already threads through.
 	req := c.HTTP.R().SetContext(ctx)
 	if options.Body != nil {
 		b, err := json.Marshal(options.Body)
@@ -78,47 +99,58 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 
 	res, err := req.Execute(method, uri)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute request: %w", err)
+		// The transport error carries the authenticated URL. Sanitize it
+		// before it propagates into handler logs and Sentry.
+		return nil, fmt.Errorf("failed to execute request: %w", c.redactor.sanitizeError(err))
 	}
 	if res.IsError() {
 		if slices.Contains(options.IgnoredErrorStatusCodes, res.StatusCode()) {
 			return res, nil
 		}
-		responseError := parseResponseError(res)
+		responseError := c.parseResponseError(res)
 		if responseError != nil {
 			c.logger.Error(
 				"response error",
-				slog.String("url", uri),
+				slog.String("url", c.redactor.redact(uri)),
 				slog.Int("status", responseError.StatusCode),
 				slog.String("error message", responseError.ErrorMessage),
 			)
 		} else {
 			c.logger.Error(
 				"response error",
-				slog.String("url", uri),
+				slog.String("url", c.redactor.redact(uri)),
 				slog.Int("status", res.StatusCode()),
 				slog.String("error message", res.Status()),
-				slog.String("response", string(res.Body())),
+				slog.String("response", c.redactor.redact(string(res.Body()))),
 			)
 		}
 		return res, fmt.Errorf("service responded with an unexpected error code: %w", responseError)
 	}
 
 	if options.Trace {
-		sanitizedHeaders := req.Header
-		for k := range sanitizedHeaders {
-			if k == "Authorization" {
-				sanitizedHeaders[k] = []string{"REDACTED"}
-			}
-		}
 		c.logger.Debug(
 			"request",
-			slog.String("url", uri),
-			slog.Any("request headers", sanitizedHeaders),
-			slog.Any("response headers", res.Header()),
+			slog.String("url", c.redactor.redact(uri)),
+			slog.Any("request headers", c.redactor.redactHeaders(req.Header)),
+			slog.Any("response headers", c.redactor.redactHeaders(res.Header())),
 		)
 	}
 	return res, nil
+}
+
+// parseResponseError builds the typed error for a non-2xx response. The
+// upstream body is carried on it verbatim apart from credentials: an API that
+// quotes the request URL back in its error payload would otherwise hand the
+// key straight to every caller that renders the message.
+func (c *Client) parseResponseError(res *resty.Response) *model.ResponseError {
+	if res == nil {
+		return nil
+	}
+	responseError := res.Error().(*model.ResponseError)
+	responseError.StatusCode = res.StatusCode()
+	responseError.ErrorMessage = c.redactor.redact(res.String())
+
+	return responseError
 }
 
 func mergeOptions(opts ...model.RequestOption) *model.RequestOptions {
@@ -130,15 +162,4 @@ func mergeOptions(opts ...model.RequestOption) *model.RequestOptions {
 	}
 
 	return options
-}
-
-func parseResponseError(res *resty.Response) *model.ResponseError {
-	if res == nil {
-		return nil
-	}
-	responseError := res.Error().(*model.ResponseError)
-	responseError.StatusCode = res.StatusCode()
-	responseError.ErrorMessage = res.String()
-
-	return responseError
 }
