@@ -8,7 +8,10 @@ import (
 	"go.tradeforge.dev/fmp/model"
 )
 
-const GetHouseFinancialDisclosuresPath = "/stable/house-latest"
+const (
+	GetHouseFinancialDisclosuresPath  = "/stable/house-latest"
+	GetSenateFinancialDisclosuresPath = "/stable/senate-latest"
+)
 
 type DisclosureClient struct {
 	*rest.Client
@@ -22,6 +25,6 @@ func (dc *DisclosureClient) GetHouseFinancialDisclosures(ctx context.Context, pa
 
 func (dc *DisclosureClient) GetSenateFinancialDisclosures(ctx context.Context, params model.GetSenateFinancialDisclosuresParams, opts ...model.RequestOption) (model.GetSenateFinancialDisclosuresResponse, error) {
 	var res model.GetSenateFinancialDisclosuresResponse
-	_, err := dc.Call(ctx, http.MethodGet, GetHouseFinancialDisclosuresPath, params, &res, opts...)
+	_, err := dc.Call(ctx, http.MethodGet, GetSenateFinancialDisclosuresPath, params, &res, opts...)
 	return res, err
 }

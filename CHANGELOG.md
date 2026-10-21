@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.19.1] - 2026-10-21
+
+### Fixed
+- `GetSenateFinancialDisclosures` requested `/stable/house-latest`, so it returned House disclosures and never Senate ones (BE-777). It now requests `/stable/senate-latest`, exported as `GetSenateFinancialDisclosuresPath`. An offline test pins the path each disclosure method requests.
+
 ## [0.19.0] - 2026-09-25
 
 ### Changed (breaking)
@@ -122,7 +129,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update news and FMP articles endpoints.
 
-[Unreleased]: https://github.com/Tradeforge/go-fmp-client/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/Tradeforge/go-fmp-client/compare/v0.19.1...HEAD
+[0.19.1]: https://github.com/Tradeforge/go-fmp-client/compare/v0.19.0...v0.19.1
+[0.19.0]: https://github.com/Tradeforge/go-fmp-client/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Tradeforge/go-fmp-client/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/Tradeforge/go-fmp-client/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/Tradeforge/go-fmp-client/compare/v0.15.3...v0.16.0
