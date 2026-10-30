@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.2] - 2026-10-30
+
+### Fixed
+- `GetEarningsCalendar` never decoded reported results: `GetEarningsCalendarResponse.EPS` and `.Revenue` read `eps` and `revenue`, but `/stable/earnings-calendar` sends `epsActual` and `revenueActual`, so both were always nil (BE-911). They now read the stable names. A fixture test with the live key set pins the decoding.
+
 ## [0.19.1] - 2026-10-21
 
 ### Fixed
