@@ -32,9 +32,12 @@ GET -> marked? no -> existing Resty -> existing classification
                                   -> gateway -> ignored? return
                                              -> remaining tries+deadline? warn,wait,next
                                              -> exhausted/budget -> terminal WARN,typed error
-                                  -> transport/cancel -> existing transport error return
+                                  -> known transport -> same remaining tries/deadline check
+                                  -> parent cancel/decode/setup -> return immediately
 
 No tests retired. No additional TODO. API uptake follows library tag; root coordinates3 PRs(library,API,infra). Full CI workflow already runs race/coverage across ./....
+
+2026-11-19 correctness delta: preserve existing retryable HTTP transport resilience in the same three-attempt loop. Source review identified premature transport return and Resty per-attempt ERROR; both corrected without nested retries. Regression covers EOF recovery, mixed gateway/transport exhaustion, cancellation and decode/setup controls. Prior full engineering review reused; delta only, no new product scope.
 
 ## GSTACK REVIEW REPORT
 

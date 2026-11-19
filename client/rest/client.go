@@ -149,6 +149,10 @@ func (c *Client) newRequest(ctx context.Context, options *model.RequestOptions, 
 	if scheduled {
 		// Retry policy is request-local; never mutate the shared Resty client.
 		req.AddRetryCondition(func(*resty.Response, error) bool { return false })
+		req.SetLogger(&scheduledAttemptLogger{
+			restyLogger: &restyLogger{logger: c.logger, redactor: c.redactor},
+			ctx:         ctx,
+		})
 	}
 	if options.Body != nil {
 		b, err := json.Marshal(options.Body)
