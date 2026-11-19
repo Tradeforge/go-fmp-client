@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"log/slog"
@@ -231,6 +232,113 @@ func TestScheduledTransportFailureDoesNotMultiplyRetries(t *testing.T) {
 	_, err := c.CallURL(model.WithScheduledRetries(context.Background()), http.MethodGet, "/stable/test", nil)
 	require.Error(t, err)
 	assert.EqualValues(t, 1, transport.attempts.Load())
-	assert.Contains(t, logs.String(), "level=ERROR")
+	assert.Contains(t, logs.String(), "fmp request attempt warning")
 	assert.NotContains(t, logs.String(), testAPIKey)
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+func TestScheduledTransportRecovery(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		name         string
+		gatewayFirst bool
+		exhaust      bool
+		wantAttempts int32
+	}{
+		{"recovered", false, false, 2},
+		{"exhausted", false, true, 3},
+		{"gateway-and-transport", true, true, 3},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				if tc.gatewayFirst {
+					w.WriteHeader(http.StatusBadGateway)
+					return
+				}
+				_, _ = w.Write([]byte(`{"ok":true}`))
+			}))
+			t.Cleanup(srv.Close)
+			c, logs := newTestClient(t, srv.URL)
+			var attempts atomic.Int32
+			c.HTTP.SetTransport(roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				n := attempts.Add(1)
+				if tc.gatewayFirst && n == 1 {
+					return http.DefaultTransport.RoundTrip(r)
+				}
+				if n == 1 || tc.exhaust {
+					return nil, io.ErrUnexpectedEOF
+				}
+				return http.DefaultTransport.RoundTrip(r)
+			}))
+			var out map[string]bool
+			_, err := c.CallURL(model.WithScheduledRetries(context.Background()), http.MethodGet, "/stable/test", &out)
+			if tc.exhaust {
+				require.ErrorIs(t, err, io.ErrUnexpectedEOF)
+			} else {
+				require.NoError(t, err)
+				assert.True(t, out["ok"])
+			}
+			assert.Equal(t, tc.wantAttempts, attempts.Load())
+			assert.NotContains(t, logs.String(), "level=ERROR")
+			assert.NotContains(t, logs.String(), testAPIKey)
+			assert.NotContains(t, logs.String(), "/stable/test")
+		})
+	}
+}
+
+func TestScheduledDecodeAndSetupErrorsDoNotRetry(t *testing.T) {
+	t.Parallel()
+	var attempts atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		attempts.Add(1)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"broken":`))
+	}))
+	t.Cleanup(srv.Close)
+	c, _ := newTestClient(t, srv.URL)
+	var out map[string]bool
+	_, err := c.CallURL(model.WithScheduledRetries(context.Background()), http.MethodGet, "/stable/test", &out)
+	var syntaxErr *json.SyntaxError
+	require.ErrorAs(t, err, &syntaxErr)
+	assert.EqualValues(t, 1, attempts.Load())
+	_, err = c.CallURL(model.WithScheduledRetries(context.Background()), http.MethodGet, "/stable/test", nil, model.Body(make(chan int)))
+	require.Error(t, err)
+	assert.EqualValues(t, 1, attempts.Load())
+}
+
+func TestScheduledTransportParentCancellationDoesNotRetry(t *testing.T) {
+	t.Parallel()
+	var attempts atomic.Int32
+	ctx, cancel := context.WithCancel(model.WithScheduledRetries(context.Background()))
+	t.Cleanup(cancel)
+	c, _ := newTestClient(t, "https://example.invalid")
+	c.HTTP.SetTransport(roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		attempts.Add(1)
+		cancel()
+		return nil, r.Context().Err()
+	}))
+	_, err := c.CallURL(ctx, http.MethodGet, "/stable/test", nil)
+	require.ErrorIs(t, err, context.Canceled)
+	assert.EqualValues(t, 1, attempts.Load())
+}
+
+func TestScheduledTransportInsufficientBudgetRetainsCause(t *testing.T) {
+	t.Parallel()
+	var attempts atomic.Int32
+	ctx, cancel := context.WithTimeout(model.WithScheduledRetries(context.Background()), time.Second)
+	t.Cleanup(cancel)
+	c, logs := newTestClient(t, "https://example.invalid")
+	c.HTTP.SetTransport(roundTripFunc(func(*http.Request) (*http.Response, error) {
+		attempts.Add(1)
+		return nil, io.ErrUnexpectedEOF
+	}))
+	_, err := c.CallURL(ctx, http.MethodGet, "/stable/test", nil)
+	require.ErrorIs(t, err, io.ErrUnexpectedEOF)
+	assert.EqualValues(t, 1, attempts.Load())
+	assert.NotContains(t, logs.String(), "fmp transport retry")
 }
