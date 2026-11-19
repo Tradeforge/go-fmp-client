@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"slices"
 	"time"
 
@@ -84,20 +85,21 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 	// Nothing else in this module mutates the client timeout, so the call was
 	// redundant as well as unsafe. A genuine per-request deadline belongs on the
 	// request's context, which SetContext below already threads through.
-	req := c.HTTP.R().SetContext(ctx)
-	if options.Body != nil {
-		b, err := json.Marshal(options.Body)
+	scheduled := method == http.MethodGet && model.IsScheduledRetryContext(ctx)
+	execute := func(attemptCtx context.Context) (*resty.Response, error) {
+		req, err := c.newRequest(attemptCtx, options, response, scheduled)
 		if err != nil {
-			return nil, fmt.Errorf("failed to marshal body: %w", err)
+			return nil, err
 		}
-		req.SetBody(b)
+		return req.Execute(method, uri)
 	}
-	req.SetQueryParamsFromValues(options.QueryParams)
-	req.SetHeaderMultiValues(options.Headers)
-	req.SetResult(response).SetError(&model.ResponseError{})
-	req.SetHeader("Content-Type", options.ContentType)
-
-	res, err := req.Execute(method, uri)
+	var res *resty.Response
+	var err error
+	if scheduled {
+		res, err = c.executeScheduled(ctx, execute, options.IgnoredErrorStatusCodes)
+	} else {
+		res, err = execute(ctx)
+	}
 	if err != nil {
 		// The transport error carries the authenticated URL. Sanitize it
 		// before it propagates into handler logs and Sentry.
@@ -108,6 +110,10 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 			return res, nil
 		}
 		responseError := c.parseResponseError(res)
+		if scheduled && isGatewayStatus(res.StatusCode()) {
+			c.logger.WarnContext(ctx, "fmp gateway failure", slog.Int("status", res.StatusCode()))
+			return res, fmt.Errorf("service responded with an unexpected error code: %w", responseError)
+		}
 		if responseError != nil {
 			c.logger.Error(
 				"response error",
@@ -131,11 +137,31 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 		c.logger.Debug(
 			"request",
 			slog.String("url", c.redactor.redact(uri)),
-			slog.Any("request headers", c.redactor.redactHeaders(req.Header)),
+			slog.Any("request headers", c.redactor.redactHeaders(res.Request.Header)),
 			slog.Any("response headers", c.redactor.redactHeaders(res.Header())),
 		)
 	}
 	return res, nil
+}
+
+func (c *Client) newRequest(ctx context.Context, options *model.RequestOptions, response any, scheduled bool) (*resty.Request, error) {
+	req := c.HTTP.R().SetContext(ctx)
+	if scheduled {
+		// Retry policy is request-local; never mutate the shared Resty client.
+		req.AddRetryCondition(func(*resty.Response, error) bool { return false })
+	}
+	if options.Body != nil {
+		b, err := json.Marshal(options.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal body: %w", err)
+		}
+		req.SetBody(b)
+	}
+	req.SetQueryParamsFromValues(options.QueryParams)
+	req.SetHeaderMultiValues(options.Headers)
+	req.SetResult(response).SetError(&model.ResponseError{})
+	req.SetHeader("Content-Type", options.ContentType)
+	return req, nil
 }
 
 // parseResponseError builds the typed error for a non-2xx response. The

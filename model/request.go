@@ -1,9 +1,24 @@
 package model
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 )
+
+type scheduledRetryContextKey struct{}
+
+// WithScheduledRetries opts scheduled GET calls into bounded gateway recovery.
+// Interactive calls should retain their own short request budget.
+func WithScheduledRetries(ctx context.Context) context.Context {
+	return context.WithValue(ctx, scheduledRetryContextKey{}, true)
+}
+
+// IsScheduledRetryContext reports whether scheduled gateway recovery is enabled.
+func IsScheduledRetryContext(ctx context.Context) bool {
+	enabled, _ := ctx.Value(scheduledRetryContextKey{}).(bool)
+	return enabled
+}
 
 // RequestOptions are used to configure client calls.
 type RequestOptions struct {
